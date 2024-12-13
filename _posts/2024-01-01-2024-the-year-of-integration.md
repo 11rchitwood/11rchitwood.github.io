@@ -1,12 +1,28 @@
 ---
 title: "2024: The Year of Integration"
 date: "2024-01-01"
-tags: 
-  - "yearly-theme"
 ---
 
-Have you ever heard of a yearly theme? I first remember hearing of the concept from the folks at [Cortex](https://www.relay.fm/cortex) (heck, they even have a [Theme System Journal](https://www.themesystem.com/) for sale). Basically, a yearly theme, as opposed to a New Year's resolution, is a word or phrase that is used to guide decisions and progress you hope to make throughout the year.
+Have you ever heard of a yearly theme?
+I first hear about this concept from [Cortex](https://www.relay.fm/cortex).
+Heck, they even sell a [Theme System Journal](https://www.themesystem.com/).
 
-This brings me to my theme for 2024: Integration. Let me explain with an example. We live 1/2 mile from my kids' preschool. This is already a good start for integration, but how can I take that further? This year I'll walk the kids to work even more than I usually do. Exercise, fresh air, time to talk with the kids. These are all benefits of walking them to school. But there are more. I'll get to see my neighbors more and build those relationships. I'll get to keep watch on the neighborhood, which should hopefully make it a safer place to live. I'll get to not hurry as much at school drop-off and pick-up and hopefully make friends with the other parents. Most days my wife picks them up, but on days when we can both go, we can enjoy some time for just the two of us on the way there and some a whole-family walk on the way home.
+A yearly theme stands in oppostition to New Year's resolutions.
+A New Year's resolution is often some lofty goal.
+Setting a New Year's resolution often results in disapointment.
+A yearly theme, on the other hand, is something to fall back on.
+Its a word or phrase used to guide decisions throughout the year.
+
+This brings me to my theme for 2024: Integration.
+Let me explain with an example.
+We live 1/2 mile from my kids' preschool.
+This is already a good start for integration, but how can I take that further?
+This year I'll walk the kids to school even more than I usually do.
+Exercise, fresh air, time to talk with the kids.
+These are all benefits of walking them to school, but there are more.
+I'll get to see my neighbors more and build those relationships.
+I'll get to keep watch on the neighborhood, making it a safer place to live.
+I'll get to slow down at drop-off and pick-up, befriending the other parents.
+We'll all get to have more family walks on the days my wife can join.
 
 So in 2024, let's integrate! I'll report back next year.
