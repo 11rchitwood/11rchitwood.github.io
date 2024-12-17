@@ -1,6 +1,6 @@
 ---
-title: "2024: The Year of Integration"
-date: "2024-01-01"
+title: 2024: The Year of Integration
+date: 2024-01-01
 ---
 
 Have you ever heard of a yearly theme?

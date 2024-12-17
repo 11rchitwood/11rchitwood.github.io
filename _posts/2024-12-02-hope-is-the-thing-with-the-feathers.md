@@ -1,6 +1,6 @@
 ---
 title: Hope is the thing with the feathers
-date: "2024-12-02"
+date: 2024-12-02
 ---
 
 ```text

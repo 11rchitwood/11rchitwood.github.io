@@ -1,6 +1,6 @@
 ---
-title: "A Prayer for Easter 2024"
-date: "2024-03-31"
+title: A Prayer for Easter 2024
+date: 2024-03-31
 ---
 
 Risen Savior,

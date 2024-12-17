@@ -1,6 +1,6 @@
 ---
-title: "Granddaddy was Good"
-date: "2024-05-04"
+title: Granddaddy was Good
+date: 2024-05-04
 ---
 
 The fruit of the Spirit is love, joy, peace, patience, kindness, **goodness**, gentleness, and self-control.

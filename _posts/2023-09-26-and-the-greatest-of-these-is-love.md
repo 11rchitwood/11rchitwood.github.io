@@ -1,6 +1,6 @@
 ---
-title: "But the Greatest of These is Love"
-date: "2024-09-26"
+title: But the Greatest of These is Love
+date: 2024-09-26
 ---
 
 > And now these three remain: faith, hope and love.

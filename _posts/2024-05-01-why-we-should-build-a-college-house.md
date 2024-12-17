@@ -1,6 +1,6 @@
 ---
-title: "Why We Should Build a College House"
-date: "2024-05-01"
+title: Why We Should Build a College House
+date: 2024-05-01
 ---
 
 We are a family whose blood runs red and black. That's right. We're Georgia Bulldogs. My wife and I both went to college there. I even got my master's degree there. Heck, we were still living in Athens when we got married.
