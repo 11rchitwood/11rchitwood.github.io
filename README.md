@@ -1,3 +1,3 @@
-# Ryan Chitwood
+# ChitChat
 
-Quanitative Analyst at Synovus
+My personal blog.
