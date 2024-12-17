@@ -1,47 +1,5 @@
 # Hope
 
-## Adventus
-
-Today is the start of the season of Advent.
-It's the beginning of the Christian calendar, and the Christmas season.
-But where did we get the word?
-The Latin word *adventus* is the noun for "coming" or "arrival."
-Literally, it's the noun version of "coming (ventus) to (ad)."
-We use the word "advent" in secular context as well.
-"The advent of the printing press" or "the advent of the internet."
-Inventions like these have changed the world in large ways.
-But the Advent season celebrates the greatest invention of all time.
-Love came down to planet Earth.
-
-```text
-The Word became flesh and blood,
-and moved into the neighborhood.
-We saw the glory with our own eyes,
-the one-of-a-kind glory,
-like Father, like Son,
-Generous inside and out,
-true from start to finish.
-
-John 1:14 MSG
-```
-
-Into the neighborhood.
-Can you believe it?
-It's unlike any other story.
-God with skin on.
-God with us.
-It's my favorite translation of my favorite verse.
-There's no inventor like God.
-
-The first week in Advent is all about Hope.
-What greater hope do we have than this?
-God sent his only son into our neighborhood.
-
-Creator of All Things, thank you for making your Word flesh.
-You're here in our neighborhood, and so we get to know you like a neighbor.
-Keep this hope in our hearts this Advent season and always.
-AMEN.
-
 ## Hope is the thing with the feathers
 
 ```text
