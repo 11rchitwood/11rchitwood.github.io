@@ -2,7 +2,16 @@
 
 ## Adventus
 
-Today is the start of the season of Advent. It's the beginning of the Christian calendar, and the Christmas season, but where did we get the word? The Latin word *adventus* is the noun for "coming" or "arrival." Literally, it's the noun version of "coming (ventus) to (ad)." We use the word "advent" in secular context as well: "the advent of the printing press" or "the advent of the internet." Inventions like these have changed the world in large ways, but the Advent season celebrates the greatest invention of all time: Love coming to planet Earth.
+Today is the start of the season of Advent.
+It's the beginning of the Christian calendar, and the Christmas season.
+But where did we get the word?
+The Latin word *adventus* is the noun for "coming" or "arrival."
+Literally, it's the noun version of "coming (ventus) to (ad)."
+We use the word "advent" in secular context as well.
+"The advent of the printing press" or "the advent of the internet."
+Inventions like these have changed the world in large ways.
+But the Advent season celebrates the greatest invention of all time.
+Love came down to planet Earth.
 
 > The Word became flesh and blood,
 > and moved into the neighborhood.
@@ -32,7 +41,7 @@ The first week in Advent is all about Hope. What greater hope do we have than th
 > That could abash the little Bird
 > That kept so many warm -
 >
-> I’ve heard it in the chillest land -
+> I've heard it in the chillest land -
 > And on the strangest Sea -
 > Yet - never - in Extremity,
 > It asked a crumb - of me.

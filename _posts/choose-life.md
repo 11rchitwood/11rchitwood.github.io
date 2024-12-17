@@ -19,10 +19,10 @@ title: Choose Life
 > Choose rotting away at the end of it all, pissing your last in a miserable home, nothing more than an embarrassment to the selfish, fucked up brats you spawned to replace yourselves.
 > Choose your future.
 > Choose life… But why would I want to do a thing like that?
-> I chose not to choose life. I chose somethin’ else.
+> I chose not to choose life. I chose somethin' else.
 > And the reasons?
 > There are no reasons.
-> Who needs reasons when you’ve got heroin?
+> Who needs reasons when you've got heroin?
 >
 > Mark "Rent Boy" Renton
 
