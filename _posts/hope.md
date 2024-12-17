@@ -1,15 +1,5 @@
 # Hope
 
-## Where does your hope lie?
-
-As I'm writing this, we're in the middle of the 2024 election season, with no winners decided yet. Honestly, I'm feeling a bit jaded. But when I was asked to write Advent devotions about Hope, I remembered the 2008 election season. Do you remember the Barack Obama "Hope" poster? Street artist Shepard Fairey based the design on a photo taken an AP freelance photographer. The poster showed then-presidential-candidate Obama with his gaze lifted up, stylized in red, white, and blue with a bold block font "HOPE" at the base.
-
-This image was everywhere back then, and it clearly resonated with many people. Some folks saw for the first time a presidential candidate that looked like them during the most serious economic downturn since the Great Depression. Looking back, I can't help but think about how many of folks were just like this during Jesus' time. First, I think of the Zealots, a revolutionary group who thought Jesus came to help them overthrow the Roman government. Next, there were the Essenes, who thought they could retreat from society to remain holy and pure. Then, there were the Pharisees, who were sure that strict adherence to the law was the only way forward. Finally, there were the Sadducees, who thought they were above the rest in both holiness and social status. The funny thing is, they all had one thing in common: none of them really understood what Jesus came to do.
-
-Jesus came to change people's hearts, not their politics. With Jesus in your heart, everything changes, not just one dimmension of life. This Christmas, regardless of election outcomes or anything else, I pray that we experience revival in our hearts and that that would lead us to be the body of Christ in our community.
-
-*Loving Jesus, help us to keep our hope in you, and you alone, this Christmas season. Divert our eyes from the squabbles of politics, and fix us on loving our neighbor as you love us. AMEN.*
-
 ## Hope for the Flowers
 
 One of the best gifts I ever received was from my Sunday school teachers in 12th grade. It was a yellow book with a butterfly on it called *Hope for the Flowers* by Trina Paulus. The cover explained that it was a "a tale - partly about life, partly about revolution, and lots about hope - for adults and other including caterpillars who can read". If you can, read it yourself, but I'll try to summarize here.
