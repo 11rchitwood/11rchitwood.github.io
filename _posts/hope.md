@@ -13,40 +13,55 @@ Inventions like these have changed the world in large ways.
 But the Advent season celebrates the greatest invention of all time.
 Love came down to planet Earth.
 
-> The Word became flesh and blood,
-> and moved into the neighborhood.
-> We saw the glory with our own eyes,
-> the one-of-a-kind glory,
-> like Father, like Son,
-> Generous inside and out,
-> true from start to finish.
->
-> John 1:14 MSG
+```text
+The Word became flesh and blood,
+and moved into the neighborhood.
+We saw the glory with our own eyes,
+the one-of-a-kind glory,
+like Father, like Son,
+Generous inside and out,
+true from start to finish.
 
-Into the neighborhood. Can you believe it? It's unlike any other story. God with skin on. God with us. It's my favorite translation of my favorite verse. There's no inventor like God.
+John 1:14 MSG
+```
 
-The first week in Advent is all about Hope. What greater hope do we have than this? God sent his only son into our neighborhood.
+Into the neighborhood.
+Can you believe it?
+It's unlike any other story.
+God with skin on.
+God with us.
+It's my favorite translation of my favorite verse.
+There's no inventor like God.
 
-*Creator of All Things, thank you for making your Word flesh. You're here in our neighborhood, and so we get to know you like a neighbor. Keep this hope in our hearts this Advent season and always. AMEN.*
+The first week in Advent is all about Hope.
+What greater hope do we have than this?
+God sent his only son into our neighborhood.
+
+Creator of All Things, thank you for making your Word flesh.
+You're here in our neighborhood, and so we get to know you like a neighbor.
+Keep this hope in our hearts this Advent season and always.
+AMEN.
 
 ## Hope is the thing with the feathers
 
-> “Hope” is the thing with feathers -
-> That perches in the soul -
-> And sings the tune without the words -
-> And never stops - at all -
->
-> And sweetest - in the Gale - is heard -
-> And sore must be the storm -
-> That could abash the little Bird
-> That kept so many warm -
->
-> I've heard it in the chillest land -
-> And on the strangest Sea -
-> Yet - never - in Extremity,
-> It asked a crumb - of me.
->
-> Emily Dickinson
+```text
+“Hope” is the thing with feathers -
+That perches in the soul -
+And sings the tune without the words -
+And never stops - at all -
+
+And sweetest - in the Gale - is heard -
+And sore must be the storm -
+That could abash the little Bird
+That kept so many warm -
+
+I've heard it in the chillest land -
+And on the strangest Sea -
+Yet - never - in Extremity,
+It asked a crumb - of me.
+
+Emily Dickinson
+```
 
 Meditate on this statement: in your darkest hour, God draws nearest to you. In fact, if your life is built on faith, you may draw nearest to God when you are at your lowest. It says as much in James 4:8, "Draw near to God and He will draw near to you." (NKJV).
 
