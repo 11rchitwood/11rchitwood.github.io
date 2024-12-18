@@ -1,4 +1,3 @@
-
 ---
 title: A Children's Bible Study Lesson
 date: 2022-04-12
