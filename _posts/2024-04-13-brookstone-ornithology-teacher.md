@@ -1,6 +1,7 @@
 ---
-title: Dream Job: Brookstone Ornithology Teacher
+title: Brookstone Ornithology Teacher
 date: 2024-04-13
+tag: dream job
 ---
 
 When I grow up, I want to teach Ornithology at my alma mater.
