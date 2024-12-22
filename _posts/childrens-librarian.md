@@ -1,5 +1,6 @@
 ---
-title: Dream Job: Children's Librarian
+title: Children's Librarian
+tag: dream job
 ---
 
 My storytime setlist:
