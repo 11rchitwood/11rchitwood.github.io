@@ -1,5 +1,5 @@
 ---
-title: 2024: The Year of Integration
+title: The Year of Integration
 date: 2024-01-01
 ---
 
@@ -25,4 +25,5 @@ I'll get to keep watch on the neighborhood, making it a safer place to live.
 I'll get to slow down at drop-off and pick-up, befriending the other parents.
 We'll all get to have more family walks on the days my wife can join.
 
-So in 2024, let's integrate! I'll report back next year.
+So in 2024, let's integrate!
+I'll report back next year.
