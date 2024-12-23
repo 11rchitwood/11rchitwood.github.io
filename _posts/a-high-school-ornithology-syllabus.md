@@ -3,7 +3,7 @@ title: A High School Ornithology Syllabus
 date: 2024-05-13
 ---
 
-A month ago I wrote about my [dream job](2024-04-13-dream-job-brookstone-ornithology-teacher.md).
+A month ago I wrote about my [dream job]({{ site.baseurl }}/2024-04-13-dream-job-brookstone-ornithology-teacher.md).
 I've been thinking about it ever since.
 The main aim is to teach Ornithology.
 So why not write a syllabus for the course?
