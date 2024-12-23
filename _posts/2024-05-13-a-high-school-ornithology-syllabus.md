@@ -83,4 +83,4 @@ Assessment Methods:
 - Field trip reports and reflections
 - Observation and data collection assignments
 
-[1]: {{ site.baseurl }}/2024/04/13/dream-job-brookstone-ornithology-teacher
+[1]: {{ site.baseurl }}/2024/04/13/brookstone-ornithology-teacher
