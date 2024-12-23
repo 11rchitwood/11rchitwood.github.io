@@ -3,7 +3,7 @@ title: A High School Ornithology Syllabus
 date: 2024-05-13
 ---
 
-A month ago I wrote about my [dream job][1].
+A month ago I wrote about my [dream job]({{ site.baseurl }}/2024/04/13/brookstone-ornithology-teacher).
 I've been thinking about it ever since.
 The main aim is to teach Ornithology.
 So why not write a syllabus for the course?
@@ -12,24 +12,29 @@ So why not write a syllabus for the course?
 
 ### Course Description
 
-In this high school ornithology class, students will embark on an exciting journey to discover the captivating world of birds. From their diverse anatomy and behavior to their ecological roles and conservation, students will gain a comprehensive understanding of ornithology. Through hands-on activities, field trips, research projects, and interactive discussions, students will develop a deep appreciation for avian species and their importance in the natural world.
+In this class, students will explore the diverse and fascinating world of birds.
+From anatomy and zoology, students will learn all about birds.
+The course will cover bird identification, behavior, ecology, and conservation.
+They will engage in hands-on activities, field trips, and research projects.
+By the end of the course, students will be able to call themselves birders.
 
 ### Learning Objectives
 
-1. Identify and classify different bird species based on their physical characteristics.
+1. Identify many bird species based on their physical characteristics.
 1. Understand avian anatomy, physiology, and adaptations for flight.
-1. Explore bird behavior, including mating rituals, courtship displays, and migration patterns.
+1. Explore bird behavior including birdsong, mating systems, and migration.
 1. Investigate the ecological roles of birds in various ecosystems.
-1. Analyze the impact of human activities on bird populations and their habitats.
+1. Analyze the impact of humans on bird populations and their habitats.
 1. Develop skills in bird observation, identification, and data collection.
-1. Promote conservation awareness and explore methods for protecting bird species and their habitats.
-1. Cultivate a sense of wonder, curiosity, and respect for birds and their natural environments.
+1. Understand conservation methods for protecting bird species and habitats.
+1. Cultivate a sense of wonder, curiosity, and respect for birds.
 
 ### Course Structure
 
 Unit 1: Introduction to Ornithology
 
 - Overview of ornithology as a scientific field
+- Why birds matter: ecological, cultural, and economic importance
 - Bird diversity and classification
 - Introduction to bird anatomy and adaptations
 - Bird-watching ethics and responsible birding practices
@@ -39,11 +44,11 @@ Unit 2: Avian Anatomy and Physiology
 - Bird skeletal system, feathers, and flight adaptations
 - Respiratory and circulatory systems of birds
 - Digestive and reproductive systems of birds
-- Field trip: Dissection and examination of bird specimens
+- Lab: Dissection and examination of bird specimens
 
 Unit 3: Bird Behavior and Communication
 
-- Courtship displays, mating rituals, and parental care
+- Courtship displays, mating systems, and parental care
 - Bird calls, songs, and vocalizations
 - Bird migration and navigation
 - Field trip: Observation of bird behavior in natural habitats
@@ -82,5 +87,3 @@ Assessment Methods:
 - Individual and group projects, including research papers and presentations
 - Field trip reports and reflections
 - Observation and data collection assignments
-
-[1]: {{ site.baseurl }}/2024/04/13/brookstone-ornithology-teacher
