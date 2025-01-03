@@ -4,7 +4,7 @@ date: 2024-01-01
 ---
 
 Have you ever heard of a yearly theme?
-I first hear about this concept from [Cortex](https://www.relay.fm/cortex).
+I first heard about this concept from [Cortex](https://www.relay.fm/cortex).
 Heck, they even sell a [Theme System Journal](https://www.themesystem.com/).
 
 A yearly theme stands in oppostition to New Year's resolutions.
