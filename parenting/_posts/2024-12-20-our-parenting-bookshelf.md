@@ -27,7 +27,7 @@ Enter [The Expectant Father](https://mrdad.com/store/expectant-father-ultimate-g
 This book was a game changer for me.
 It's a month-by-month guide to pregnancy.
 For dads.
-Enought said.
+Enough said.
 
 ## Sleep
 
