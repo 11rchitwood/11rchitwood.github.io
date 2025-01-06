@@ -15,6 +15,20 @@ These are books that we have read and reread often.
 
 Here are some of the books that have been most helpful to us:
 
+## Prepare
+
+When I first found out we were expecting, I felt a strange mix of emotions.
+I have always wanted to be a father, so I was excited.
+But I felt a bit disconnected from my wife's pregnancy.
+I mean pregnancy is a *long* time.
+And it ain't easy.
+I wanted to be more involved, but I didn't know how.
+Enter [The Expectant Father](https://mrdad.com/store/expectant-father-ultimate-guide-dads-4th-edition/).
+This book was a game changer for me.
+It's a month-by-month guide to pregnancy.
+For dads.
+Enought said.
+
 ## Sleep
 
 We call [The Happy Sleeper](https://www.thehappysleeper.com) our sleep bible.
