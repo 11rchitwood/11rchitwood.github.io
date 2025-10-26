@@ -46,7 +46,7 @@ balance_by_month |>
   kable()
 ```
 
-So we've got monthly balances for one year from `r n_accounts` accounts. As always, let's plot the data!
+So we've got monthly balances for one year from `r n_accounts` accounts. Let's plot the data!
 
 ```{r}
 ggplot(balance_by_month, aes(x = date, y = balance, fill = account_id)) +
