@@ -92,15 +92,17 @@ n_per_condition <- 500
 
 # Define true effects (in probability scale)
 base_rate <- 0.12
-text_effect <- 0.02      # "Complete Purchase" adds 2 percentage points
-color_effect <- 0.015    # Green adds 1.5 percentage points
-interaction_effect <- 0.01  # Extra boost when both changes are present
+text_effect <- 0.02 # "Complete Purchase" adds 2 percentage points
+color_effect <- 0.015 # Green adds 1.5 percentage points
+interaction_effect <- 0.01 # Extra boost when both changes are present
 
 # Generate data for each condition
 data <- tibble(
   condition = rep(c("A", "B", "C", "D"), each = n_per_condition),
-  text = rep(c("Buy Now", "Buy Now", "Complete Purchase", "Complete Purchase"),
-             each = n_per_condition),
+  text = rep(
+    c("Buy Now", "Buy Now", "Complete Purchase", "Complete Purchase"),
+    each = n_per_condition
+  ),
   color = rep(c("Blue", "Green", "Blue", "Green"), each = n_per_condition)
 ) |>
   mutate(
@@ -109,7 +111,10 @@ data <- tibble(
       condition == "A" ~ base_rate,
       condition == "B" ~ base_rate + color_effect,
       condition == "C" ~ base_rate + text_effect,
-      condition == "D" ~ base_rate + text_effect + color_effect + interaction_effect
+      condition == "D" ~ base_rate +
+        text_effect +
+        color_effect +
+        interaction_effect
     ),
     converted = rbinom(n(), 1, true_prob)
   )
@@ -161,12 +166,15 @@ coef_summary <- broom::tidy(model, conf.int = TRUE) |>
     ci_low_pct = conf.low * 2 * 100,
     ci_high_pct = conf.high * 2 * 100
   ) |>
-  select(Contrast = term, `Effect (pct pts)` = effect_pct,
-         `95% CI Low` = ci_low_pct, `95% CI High` = ci_high_pct,
-         `p-value` = p.value)
+  select(
+    Contrast = term,
+    `Effect (pct pts)` = effect_pct,
+    `95% CI Low` = ci_low_pct,
+    `95% CI High` = ci_high_pct,
+    `p-value` = p.value
+  )
 
-knitr::kable(coef_summary, digits = 3,
-             caption = "Orthogonal Contrast Results")
+knitr::kable(coef_summary, digits = 3, caption = "Orthogonal Contrast Results")
 ```
 
 ## Visualizing the Results
@@ -181,8 +189,10 @@ data |>
   ggplot(aes(x = text, y = rate, color = color, group = color)) +
   geom_point(size = 4) +
   geom_line(linewidth = 1.2) +
-  scale_y_continuous(labels = scales::percent_format(),
-                     limits = c(0.10, 0.18)) +
+  scale_y_continuous(
+    labels = scales::percent_format(),
+    limits = c(0.10, 0.18)
+  ) +
   scale_color_manual(values = c("Blue" = "#2563eb", "Green" = "#16a34a")) +
   labs(
     title = "Checkout Button Conversion Rates",
@@ -215,8 +225,10 @@ simulate_experiment <- function(n_per_condition, true_text_effect = 0.02) {
 
   data <- tibble(
     condition = rep(c("A", "B", "C", "D"), each = n_per_condition),
-    text = rep(c("Buy Now", "Buy Now", "Complete Purchase", "Complete Purchase"),
-               each = n_per_condition),
+    text = rep(
+      c("Buy Now", "Buy Now", "Complete Purchase", "Complete Purchase"),
+      each = n_per_condition
+    ),
     color = rep(c("Blue", "Green", "Blue", "Green"), each = n_per_condition)
   ) |>
     mutate(
@@ -224,7 +236,10 @@ simulate_experiment <- function(n_per_condition, true_text_effect = 0.02) {
         condition == "A" ~ base_rate,
         condition == "B" ~ base_rate + color_effect,
         condition == "C" ~ base_rate + true_text_effect,
-        condition == "D" ~ base_rate + true_text_effect + color_effect + interaction_effect
+        condition == "D" ~ base_rate +
+          true_text_effect +
+          color_effect +
+          interaction_effect
       ),
       converted = rbinom(n(), 1, true_prob),
       text_code = ifelse(text == "Complete Purchase", 1, -1),
@@ -232,7 +247,10 @@ simulate_experiment <- function(n_per_condition, true_text_effect = 0.02) {
     )
 
   # Orthogonal contrast approach
-  model <- lm(converted ~ text_code + color_code + text_code:color_code, data = data)
+  model <- lm(
+    converted ~ text_code + color_code + text_code:color_code,
+    data = data
+  )
   orthogonal_p <- summary(model)$coefficients["text_code", "Pr(>|t|)"]
 
   # Traditional approach: just compare A vs C (same color, different text)
@@ -255,8 +273,11 @@ power_comparison <- tibble(
   `Sample Size` = c("300 × 4 = 1200 total", "300 × 2 = 600 total")
 )
 
-knitr::kable(power_comparison, digits = 3,
-             caption = "Statistical Power Comparison (detecting 2 pct pt text effect)")
+knitr::kable(
+  power_comparison,
+  digits = 3,
+  caption = "Statistical Power Comparison (detecting 2 pct pt text effect)"
+)
 ```
 
 The orthogonal contrast approach has higher power for detecting the text effect because it uses *all* the data efficiently. The traditional approach only uses conditions A and C, throwing away half the information.
