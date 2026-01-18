@@ -1,7 +1,6 @@
 ---
 title: "Better A/B Testing with Orthogonal Contrasts"
 date: "2026-01-17"
-draft: true
 ---
 
 You're running A/B tests on your app's checkout flow. The current design (Control) is being tested against a redesigned version (Treatment). You collect data, run a t-test, and get your p-value. Simple enough.
@@ -180,8 +179,7 @@ knitr::kable(coef_summary, digits = 3, caption = "Orthogonal Contrast Results")
 ## Visualizing the Results
 
 ```{r}
-#| fig-width: 8
-#| fig-height: 5
+#| classes: preview-image
 # Interaction plot
 data |>
   group_by(text, color) |>
@@ -215,7 +213,6 @@ The non-parallel lines indicate an interaction effect: the benefit of green over
 Let's demonstrate the power advantage with a simulation:
 
 ```{r}
-#| cache: true
 # Power simulation: compare traditional sequential tests vs orthogonal contrasts
 
 simulate_experiment <- function(n_per_condition, true_text_effect = 0.02) {
