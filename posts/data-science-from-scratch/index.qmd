@@ -5,7 +5,15 @@ date: "2025-03-17"
 
 Is the R vs Python debate still alive in 2025?
 
-I'm not sure, but I was digging into an old tome by [Joel Grus](https://joelgrus.com) entitled *Data Science from Scratch*. It's a great book, but reading through it this time reminded me of the old data science debate. Rather than wax philosophically on this topic, I'm going to translate the code from the book's introduction and compare the two languages from there. It's always best to work through examples.
+I'm not sure, but I was digging into an old tome by [Joel Grus](https://joelgrus.com) entitled *Data Science from Scratch*. It's a great book that teaches data science by building everything from the ground up in Python: implementing gradient descent by hand, writing your own k-nearest neighbors classifier, even coding up basic linear algebra operations. The pedagogical value is clear—understanding the fundamentals makes you a better practitioner.
+
+But here's the thing: **nobody actually does data science from scratch anymore.**
+
+And that's not a criticism—it's progress. The same way modern web developers don't write their own HTTP parsers and database drivers, data scientists don't (and shouldn't) implement basic statistical functions from first principles for production work. We stand on the shoulders of giants, using battle-tested libraries that have been refined by thousands of contributors over decades.
+
+This is where language design philosophy matters. Some languages are designed as general-purpose tools that can be extended for specific domains. Others are purpose-built for a particular domain from day one. Python is firmly in the first camp—it's an excellent general-purpose language that has been *extended* into data science through libraries like NumPy, Pandas, and scikit-learn. R, on the other hand, was designed from the ground up for statistical computing and data analysis.
+
+What does this mean in practice? Let me translate the code from the book's introduction to R and show you. Rather than wax philosophical, I'll let the examples speak for themselves.
 
 # Motivational Hypothetical: DataSciencester
 
@@ -58,7 +66,7 @@ friendship_pairs
 
 I'll praise Python for one thing so far: data structure literals. I don't need to print `friendship_pairs` in the Python code because that would just print out the actual code itself. Reminds me of Lisp. That's good.
 
-But let me dote on my first love R too. Common data structures like matrices are build right in. No `import numpy as np` required.
+But let me dote on my first love R too. Common data structures like matrices are built right in. No `import numpy as np` required. This is what I mean by "batteries included" for data science—the fundamental data structures you need for statistical computing and data analysis are part of the language itself, not third-party extensions. Matrices aren't an afterthought in R; they're a first-class citizen.
 
 Moving on, the author expertly points out that a list of pairs is not the best way to work with the data. Neither is a matrix really. Let's transform the data.
 
@@ -207,17 +215,23 @@ salaries_and_tenures
 
 Column names are so nice to have here. Sure, a two-column matrix would work too, but I prefer matrices to contain homogeneous data within. Salary and tenure are measured in different units, which makes a data frame preferred for me.
 
-Next, the author includes a plot, but with no code. I get it. He doesn't want introduce Matplotlib yet, but in R we get plots built right in.
+This is another example of R's "batteries included" philosophy. Data frames aren't just built into R—they're *central* to how R thinks about data. The `data.frame` class was part of R from very early on, because the language designers understood that data scientists need to work with heterogeneous tabular data. Python eventually got Pandas, which is excellent, but it's an add-on library that came along much later (2008 for Pandas vs 1993 for S, R's predecessor). R was designed with this use case in mind from day one.
+
+Next, the author includes a plot, but with no code. I get it. He doesn't want introduce Matplotlib yet—that would require explaining a whole new library with its own API, object model, and learning curve.
+
+But in R, we get plots built right in:
 
 ```{r}
 plot(
-  salary ~ tenure, 
+  salary ~ tenure,
   data = salaries_and_tenures,
   main = "Salaries by Years Experience",
   xlab = "Years Experience",
   ylab = "Salary"
 )
 ```
+
+No imports. No setup. Just `plot()`. This is a fundamental difference in philosophy. Python's general-purpose nature means you need to bring in specialized libraries for specialized tasks. R's domain-specific design means the tools you need for statistical computing and data visualization are part of the language itself. And notice the formula syntax (`salary ~ tenure`)—that's not just a nice-to-have, it's a domain-specific language for expressing statistical relationships that's baked right into R.
 
 Skipping the erroneous average salary by tenure piece, we move on to bucketing tenure.
 
@@ -268,9 +282,23 @@ aggregate(salary ~ tenure_bucket, data = salaries_and_tenures, mean)
 
 Also, `aggregate()` is super powerful, if complicated. I'm going to skip the rest of the examples, since they aren't that interesting.
 
+## The Point: Don't Reinvent the Wheel
+
+Before we move on to a final example, let me emphasize the broader point here. Throughout these examples from *Data Science from Scratch*, we've seen Python code that implements basic operations from first principles—manually looping through data structures, writing custom functions for averaging, sorting with lambda functions. This is great for learning, but it's not how modern data science works.
+
+In real data science work, you want to use well-tested, optimized tools that thousands of people have already debugged and refined. The question is: which language makes those tools more immediately accessible?
+
+R's answer is to build them into the language itself. The result is that even "base R"—the language without any additional packages—gives you a remarkably complete toolkit for data analysis. You can read data, clean it, visualize it, model it, and report on it using only what ships with R.
+
+This doesn't mean you should only use base R. As we'll see in the conclusion, the modern R ecosystem offers fantastic tools that go far beyond base R's capabilities. But the fact that the foundations are solid and built-in matters enormously. It means less conceptual overhead, fewer dependency conflicts, and more time spent analyzing data rather than configuring your environment.
+
 ## Diversion: igraph
 
-Going back to the first section on the DataSciencester social network, it strikes me that there is a better tool this analysis: [igraph](https://igraph.org). It's a collection of network analysis tools implemented in C with bindings Mathematica, Python, and R. Since the R bindings for igraph were developed first (and I'm biased towards R), we'll use that version.
+Going back to the first section on the DataSciencester social network, it strikes me that there is a better tool for this analysis: [igraph](https://igraph.org). It's a collection of network analysis tools implemented in C with bindings for Mathematica, Python, and R.
+
+This is a perfect example of what I mean about specialized tools. Rather than implementing graph algorithms from scratch (calculating betweenness centrality by hand would be tedious and error-prone), we use a library that's been optimized and tested by network science experts. Since the R bindings for igraph were developed first (and I'm biased towards R), we'll use that version.
+
+Notice how naturally igraph fits into R's ecosystem. Because R already has the right data structures (matrices, vectors, data frames), igraph can focus on the network-specific functionality rather than building infrastructure.
 
 ```{r}
 library(igraph)
@@ -296,5 +324,30 @@ plot(g, vertex.size = V(g)$size)
 
 ## Conclusion
 
-The Zen of Python will tell you that Python is "batteries included." I'm here to tell you that R is "batteries included" for data science. R has built-in data frames and matrices. It has plotting built right in too, and you know I love that given this site's name. It's vectorized from the start and comes with lots of handy functional programming tools like `apply()` and the gang. And we didn't even fit a statistical model. Those are built right in too. So do I need to write *Data Science from Scratch in R* or what?
+The Zen of Python will tell you that Python is "batteries included." I'm here to tell you that **R is "batteries included" specifically for data science.** R has built-in data frames and matrices. It has plotting built right in too, and you know I love that given this site's name. It's vectorized from the start and comes with lots of handy functional programming tools like `apply()` and the gang. And we didn't even fit a statistical model—those are built right in too, with `lm()`, `glm()`, `t.test()`, `cor.test()`, and dozens more statistical functions ready to use without a single `import` statement.
+
+But here's where it gets really interesting: **this firm foundation has led to an explosion of highly ergonomic tools built on top of R's base capabilities.**
+
+### The Modern R Ecosystem
+
+When you have solid, well-designed foundations—proper data frames, integrated statistical functions, native plotting capabilities—it becomes much easier to build powerful abstractions on top. The R ecosystem has flourished precisely because it started with the right primitives for data science.
+
+Consider the tidyverse, a collection of packages designed for data science with a consistent philosophy and API. Because R already had data frames as a first-class concept, the tidyverse could focus on making them more ergonomic rather than inventing them from scratch. The result? Tools like:
+
+- **dplyr** for data manipulation: `filter()`, `mutate()`, `summarize()`, `group_by()`, all operating on data frames with a consistent, readable syntax
+- **ggplot2** for data visualization: building on R's native plotting capabilities to create a grammar of graphics that's both powerful and intuitive
+- **tidyr** for data reshaping: `pivot_longer()` and `pivot_wider()` make data tidying a breeze
+- **purrr** for functional programming: extending R's built-in `apply()` family with more consistent behavior and better error messages
+
+Or look at **data.table**, which extends R's built-in data frame concept to handle massive datasets with incredible performance. It's fast because it's built on R's understanding of columnar data structures, not fighting against the language.
+
+For Bayesian statistics, we have **brms**, which provides a high-level interface to Stan but feels natural because R already has formula notation and built-in distributions. For machine learning, **tidymodels** provides a unified interface to hundreds of models while respecting R's statistical heritage.
+
+### Why This Matters
+
+When you start with the right primitives—when data frames, statistical functions, and plotting aren't bolted on but are fundamental to the language—you create a virtuous cycle. Package developers can build on solid foundations rather than working around limitations. Users can learn new packages more easily because they share common conventions. And the entire ecosystem moves forward together.
+
+This is why, despite the rise of Python in data science, R continues to be the tool of choice for statisticians, data analysts, and scientists who need to do serious statistical work. You can be productive immediately with base R, and when you need more power or convenience, there's an ecosystem of thoughtfully designed packages waiting for you.
+
+So do I need to write *Data Science from Scratch in R*? Maybe not. Because in R, you're never starting from scratch—you're starting from a foundation specifically designed for statistical computing and data analysis. And that's exactly where you want to be.
 
