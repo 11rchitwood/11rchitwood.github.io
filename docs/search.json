@@ -1,0 +1,254 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "Ryan Chitwood",
+    "section": "",
+    "text": "Greetings! My name is Ryan Chitwood. I am a Quantitative Analyst at Synovus. Before that I was the Research & Data Analyst at PAEA. I have degrees in ecology and wildlife biology from the University of Georgia. While I was there, I studied Black-throated Blue Warbler population dynamics. In my spare time, I enjoy playing basketball and hanging out with my family."
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html",
+    "href": "posts/orthogonal-contrasts/index.html",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "",
+    "text": "You’re running A/B tests on your app’s checkout flow. The current design (Control) is being tested against a redesigned version (Treatment). You collect data, run a t-test, and get your p-value. Simple enough.\nBut what if you want to test multiple variations simultaneously? What if you want to understand not just “did it change?” but “what kind of change matters?” This is where orthogonal contrasts come in—a powerful experimental design that lets you ask more sophisticated questions while maintaining statistical rigor."
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html#the-traditional-ab-test-a-quick-review",
+    "href": "posts/orthogonal-contrasts/index.html#the-traditional-ab-test-a-quick-review",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "The Traditional A/B Test: A Quick Review",
+    "text": "The Traditional A/B Test: A Quick Review\nLet’s set up a realistic scenario. You’re a product manager at a mobile commerce company, and you want to optimize your checkout button. Your current button says “Buy Now” with a blue background. You suspect that both the text and color might affect conversion rates.\nIn a traditional A/B test, you’d compare your current design against one alternative:\n\nlibrary(tidyverse)\n\nset.seed(42)\n\n# Simulate conversion data: 1000 users per group\nn_per_group &lt;- 1000\n\n# Control: \"Buy Now\" blue button (baseline 12% conversion)\n# Treatment: \"Complete Purchase\" green button (14% conversion)\ncontrol &lt;- rbinom(n_per_group, 1, 0.12)\ntreatment &lt;- rbinom(n_per_group, 1, 0.14)\n\n# Traditional t-test\nt.test(treatment, control)\n\n\n    Welch Two Sample t-test\n\ndata:  treatment and control\nt = 0.92162, df = 1994, p-value = 0.3568\nalternative hypothesis: true difference in means is not equal to 0\n95 percent confidence interval:\n -0.01579114  0.04379114\nsample estimates:\nmean of x mean of y \n    0.140     0.126 \n\n\nThis tells us whether the treatment is different from control. But here’s the limitation: we changed two things at once (text and color). If the result is significant, we don’t know if it’s the text, the color, or their combination that drove the change.\nThe naive solution? Run separate tests: - Test 1: Blue “Buy Now” vs Blue “Complete Purchase” - Test 2: Blue “Buy Now” vs Green “Buy Now” - Test 3: Blue “Buy Now” vs Green “Complete Purchase”\nBut now you have a multiple comparisons problem, you need more users, and the tests aren’t efficiently designed."
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html#enter-orthogonal-contrasts",
+    "href": "posts/orthogonal-contrasts/index.html#enter-orthogonal-contrasts",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "Enter Orthogonal Contrasts",
+    "text": "Enter Orthogonal Contrasts\nOrthogonal contrasts are a way to partition the variance in your experiment into independent, non-overlapping components. Instead of asking “is there any difference somewhere?”, you ask specific, pre-planned questions that together account for all the systematic variation in your data.\nFor our checkout button example, we can design a 2×2 factorial experiment:\n\n\n\nCondition\nText\nColor\n\n\n\n\nA\nBuy Now\nBlue\n\n\nB\nBuy Now\nGreen\n\n\nC\nComplete Purchase\nBlue\n\n\nD\nComplete Purchase\nGreen\n\n\n\nWith orthogonal contrasts, we can simultaneously test:\n\nMain effect of Text: Does “Complete Purchase” perform differently than “Buy Now”?\nMain effect of Color: Does green perform differently than blue?\nInteraction: Does the effect of text depend on color (or vice versa)?\n\nThese three contrasts are orthogonal—mathematically independent—which means: - No multiple comparison penalty needed - Each contrast uses all the data efficiently - The sum of their effects equals the total treatment variance"
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html#the-math-behind-orthogonal-contrasts",
+    "href": "posts/orthogonal-contrasts/index.html#the-math-behind-orthogonal-contrasts",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "The Math Behind Orthogonal Contrasts",
+    "text": "The Math Behind Orthogonal Contrasts\nFor our four conditions (A, B, C, D), we can define contrast coefficients that sum to zero and are orthogonal to each other:\n\n\n\nContrast\nA\nB\nC\nD\nInterpretation\n\n\n\n\nText\n-1\n-1\n+1\n+1\nComplete Purchase vs Buy Now\n\n\nColor\n-1\n+1\n-1\n+1\nGreen vs Blue\n\n\nInteraction\n+1\n-1\n-1\n+1\nDoes text effect differ by color?\n\n\n\nTwo contrasts are orthogonal when the sum of the products of their coefficients equals zero: - Text × Color: (-1×-1) + (-1×1) + (1×-1) + (1×1) = 1 - 1 - 1 + 1 = 0 ✓ - Text × Interaction: (-1×1) + (-1×-1) + (1×-1) + (1×1) = -1 + 1 - 1 + 1 = 0 ✓ - Color × Interaction: (-1×1) + (1×-1) + (-1×-1) + (1×1) = -1 - 1 + 1 + 1 = 0 ✓"
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html#implementing-orthogonal-contrasts-in-r",
+    "href": "posts/orthogonal-contrasts/index.html#implementing-orthogonal-contrasts-in-r",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "Implementing Orthogonal Contrasts in R",
+    "text": "Implementing Orthogonal Contrasts in R\nLet’s simulate the full factorial experiment:\n\nset.seed(123)\n\nn_per_condition &lt;- 500\n\n# Define true effects (in probability scale)\nbase_rate &lt;- 0.12\ntext_effect &lt;- 0.02 # \"Complete Purchase\" adds 2 percentage points\ncolor_effect &lt;- 0.015 # Green adds 1.5 percentage points\ninteraction_effect &lt;- 0.01 # Extra boost when both changes are present\n\n# Generate data for each condition\ndata &lt;- tibble(\n  condition = rep(c(\"A\", \"B\", \"C\", \"D\"), each = n_per_condition),\n  text = rep(\n    c(\"Buy Now\", \"Buy Now\", \"Complete Purchase\", \"Complete Purchase\"),\n    each = n_per_condition\n  ),\n  color = rep(c(\"Blue\", \"Green\", \"Blue\", \"Green\"), each = n_per_condition)\n) |&gt;\n  mutate(\n    # Calculate true conversion probability for each condition\n    true_prob = case_when(\n      condition == \"A\" ~ base_rate,\n      condition == \"B\" ~ base_rate + color_effect,\n      condition == \"C\" ~ base_rate + text_effect,\n      condition == \"D\" ~ base_rate +\n        text_effect +\n        color_effect +\n        interaction_effect\n    ),\n    converted = rbinom(n(), 1, true_prob)\n  )\n\n# View the observed conversion rates\ndata |&gt;\n  group_by(condition, text, color) |&gt;\n  summarise(\n    n = n(),\n    conversions = sum(converted),\n    rate = mean(converted),\n    .groups = \"drop\"\n  ) |&gt;\n  knitr::kable(digits = 3, caption = \"Observed Conversion Rates by Condition\")\n\n\nObserved Conversion Rates by Condition\n\n\ncondition\ntext\ncolor\nn\nconversions\nrate\n\n\n\n\nA\nBuy Now\nBlue\n500\n63\n0.126\n\n\nB\nBuy Now\nGreen\n500\n65\n0.130\n\n\nC\nComplete Purchase\nBlue\n500\n54\n0.108\n\n\nD\nComplete Purchase\nGreen\n500\n87\n0.174\n\n\n\n\n\nNow let’s set up and test our orthogonal contrasts:\n\n# Set up factors with proper coding\ndata &lt;- data |&gt;\n  mutate(\n    text_code = ifelse(text == \"Complete Purchase\", 1, -1),\n    color_code = ifelse(color == \"Green\", 1, -1),\n    interaction_code = text_code * color_code\n  )\n\n# Fit the model\nmodel &lt;- lm(converted ~ text_code + color_code + interaction_code, data = data)\n\nsummary(model)\n\n\nCall:\nlm(formula = converted ~ text_code + color_code + interaction_code, \n    data = data)\n\nResiduals:\n   Min     1Q Median     3Q    Max \n-0.174 -0.130 -0.126 -0.108  0.892 \n\nCoefficients:\n                 Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)      0.134500   0.007618  17.657   &lt;2e-16 ***\ntext_code        0.006500   0.007618   0.853   0.3936    \ncolor_code       0.017500   0.007618   2.297   0.0217 *  \ninteraction_code 0.015500   0.007618   2.035   0.0420 *  \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.3407 on 1996 degrees of freedom\nMultiple R-squared:  0.005058,  Adjusted R-squared:  0.003562 \nF-statistic: 3.382 on 3 and 1996 DF,  p-value: 0.01755\n\n\nLet’s interpret these results more clearly:\n\n# Extract coefficients and compute confidence intervals\ncoef_summary &lt;- broom::tidy(model, conf.int = TRUE) |&gt;\n  filter(term != \"(Intercept)\") |&gt;\n  mutate(\n    term = case_when(\n      term == \"text_code\" ~ \"Text Effect\",\n      term == \"color_code\" ~ \"Color Effect\",\n      term == \"interaction_code\" ~ \"Interaction\"\n    ),\n    # Convert to percentage points (estimates are on 0-1 scale,\n    # and coded -1/+1 so multiply by 2 for full effect)\n    effect_pct = estimate * 2 * 100,\n    ci_low_pct = conf.low * 2 * 100,\n    ci_high_pct = conf.high * 2 * 100\n  ) |&gt;\n  select(\n    Contrast = term,\n    `Effect (pct pts)` = effect_pct,\n    `95% CI Low` = ci_low_pct,\n    `95% CI High` = ci_high_pct,\n    `p-value` = p.value\n  )\n\nknitr::kable(coef_summary, digits = 3, caption = \"Orthogonal Contrast Results\")\n\n\nOrthogonal Contrast Results\n\n\nContrast\nEffect (pct pts)\n95% CI Low\n95% CI High\np-value\n\n\n\n\nText Effect\n1.3\n-1.688\n4.288\n0.394\n\n\nColor Effect\n3.5\n0.512\n6.488\n0.022\n\n\nInteraction\n3.1\n0.112\n6.088\n0.042"
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html#visualizing-the-results",
+    "href": "posts/orthogonal-contrasts/index.html#visualizing-the-results",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "Visualizing the Results",
+    "text": "Visualizing the Results\n\n# Interaction plot\ndata |&gt;\n  group_by(text, color) |&gt;\n  summarise(rate = mean(converted), .groups = \"drop\") |&gt;\n  ggplot(aes(x = text, y = rate, color = color, group = color)) +\n  geom_point(size = 4) +\n  geom_line(linewidth = 1.2) +\n  scale_y_continuous(\n    labels = scales::percent_format(),\n    limits = c(0.10, 0.18)\n  ) +\n  scale_color_manual(values = c(\"Blue\" = \"#2563eb\", \"Green\" = \"#16a34a\")) +\n  labs(\n    title = \"Checkout Button Conversion Rates\",\n    subtitle = \"2×2 Factorial Design with Orthogonal Contrasts\",\n    x = \"Button Text\",\n    y = \"Conversion Rate\",\n    color = \"Button Color\"\n  ) +\n  theme_minimal(base_size = 14) +\n  theme(\n    plot.title = element_text(face = \"bold\"),\n    legend.position = \"bottom\"\n  )\n\n\n\n\n\n\n\n\nThe non-parallel lines indicate an interaction effect: the benefit of green over blue is larger when combined with “Complete Purchase” text."
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html#why-orthogonal-contrasts-are-more-powerful",
+    "href": "posts/orthogonal-contrasts/index.html#why-orthogonal-contrasts-are-more-powerful",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "Why Orthogonal Contrasts Are More Powerful",
+    "text": "Why Orthogonal Contrasts Are More Powerful\nLet’s demonstrate the power advantage with a simulation:\n\n# Power simulation: compare traditional sequential tests vs orthogonal contrasts\n\nsimulate_experiment &lt;- function(n_per_condition, true_text_effect = 0.02) {\n  base_rate &lt;- 0.12\n  color_effect &lt;- 0.015\n  interaction_effect &lt;- 0.005\n\n  data &lt;- tibble(\n    condition = rep(c(\"A\", \"B\", \"C\", \"D\"), each = n_per_condition),\n    text = rep(\n      c(\"Buy Now\", \"Buy Now\", \"Complete Purchase\", \"Complete Purchase\"),\n      each = n_per_condition\n    ),\n    color = rep(c(\"Blue\", \"Green\", \"Blue\", \"Green\"), each = n_per_condition)\n  ) |&gt;\n    mutate(\n      true_prob = case_when(\n        condition == \"A\" ~ base_rate,\n        condition == \"B\" ~ base_rate + color_effect,\n        condition == \"C\" ~ base_rate + true_text_effect,\n        condition == \"D\" ~ base_rate +\n          true_text_effect +\n          color_effect +\n          interaction_effect\n      ),\n      converted = rbinom(n(), 1, true_prob),\n      text_code = ifelse(text == \"Complete Purchase\", 1, -1),\n      color_code = ifelse(color == \"Green\", 1, -1)\n    )\n\n  # Orthogonal contrast approach\n  model &lt;- lm(\n    converted ~ text_code + color_code + text_code:color_code,\n    data = data\n  )\n  orthogonal_p &lt;- summary(model)$coefficients[\"text_code\", \"Pr(&gt;|t|)\"]\n\n  # Traditional approach: just compare A vs C (same color, different text)\n  traditional_p &lt;- t.test(\n    data$converted[data$condition == \"C\"],\n    data$converted[data$condition == \"A\"]\n  )$p.value\n\n  c(orthogonal = orthogonal_p &lt; 0.05, traditional = traditional_p &lt; 0.05)\n}\n\n# Run simulation\nset.seed(456)\nn_sims &lt;- 1000\nresults &lt;- replicate(n_sims, simulate_experiment(n_per_condition = 300))\n\npower_comparison &lt;- tibble(\n  Method = c(\"Orthogonal Contrasts\", \"Traditional A/B Test\"),\n  Power = c(mean(results[\"orthogonal\", ]), mean(results[\"traditional\", ])),\n  `Sample Size` = c(\"300 × 4 = 1200 total\", \"300 × 2 = 600 total\")\n)\n\nknitr::kable(\n  power_comparison,\n  digits = 3,\n  caption = \"Statistical Power Comparison (detecting 2 pct pt text effect)\"\n)\n\n\nStatistical Power Comparison (detecting 2 pct pt text effect)\n\n\nMethod\nPower\nSample Size\n\n\n\n\nOrthogonal Contrasts\n0.195\n300 × 4 = 1200 total\n\n\nTraditional A/B Test\n0.100\n300 × 2 = 600 total\n\n\n\n\n\nThe orthogonal contrast approach has higher power for detecting the text effect because it uses all the data efficiently. The traditional approach only uses conditions A and C, throwing away half the information.\nEven more importantly, the orthogonal design answers three questions (text, color, interaction) for roughly the cost of one traditional test with equivalent power."
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html#when-to-use-orthogonal-contrasts",
+    "href": "posts/orthogonal-contrasts/index.html#when-to-use-orthogonal-contrasts",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "When to Use Orthogonal Contrasts",
+    "text": "When to Use Orthogonal Contrasts\nOrthogonal contrasts are ideal when:\n\nYou have multiple factors to test: Instead of running sequential A/B tests, design a factorial experiment upfront.\nYou care about interactions: Traditional A/B tests can’t detect interactions. If the effect of one change depends on another, you’ll miss it entirely.\nYou want to maximize information per user: In products with limited traffic, orthogonal designs extract more insights from fewer observations.\nYou have specific hypotheses: Orthogonal contrasts require pre-planned questions. If you’re just exploring, they may not be appropriate."
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html#practical-tips-for-implementation",
+    "href": "posts/orthogonal-contrasts/index.html#practical-tips-for-implementation",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "Practical Tips for Implementation",
+    "text": "Practical Tips for Implementation\n1. Plan your contrasts before collecting data. Post-hoc contrasts aren’t truly orthogonal and require multiple comparison corrections.\n2. Balance your sample sizes. Orthogonal contrasts work best with equal n per condition. Unbalanced designs lose the clean independence property.\n3. Limit the number of factors. A 2×2 design has 4 conditions. A 2×2×2 has 8. A 3×3×3 has 27. Designs get unwieldy quickly.\n4. Consider effect coding vs. dummy coding. Effect coding (-1, +1) gives you main effects averaged across other conditions. Dummy coding (0, 1) gives you simple effects.\n\n# Quick reference: setting up contrasts in R\n# For a 2x2 design, you can use contr.sum for automatic effect coding\n\ndata_factored &lt;- data |&gt;\n  mutate(\n    text_factor = factor(text),\n    color_factor = factor(color)\n  )\n\n# Set contrasts to sum-to-zero (effect coding)\ncontrasts(data_factored$text_factor) &lt;- contr.sum(2)\ncontrasts(data_factored$color_factor) &lt;- contr.sum(2)\n\n# This model is equivalent to our manual coding\nmodel_auto &lt;- lm(converted ~ text_factor * color_factor, data = data_factored)\nsummary(model_auto)\n\n\nCall:\nlm(formula = converted ~ text_factor * color_factor, data = data_factored)\n\nResiduals:\n   Min     1Q Median     3Q    Max \n-0.174 -0.130 -0.126 -0.108  0.892 \n\nCoefficients:\n                            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)                 0.134500   0.007618  17.657   &lt;2e-16 ***\ntext_factor1               -0.006500   0.007618  -0.853   0.3936    \ncolor_factor1              -0.017500   0.007618  -2.297   0.0217 *  \ntext_factor1:color_factor1  0.015500   0.007618   2.035   0.0420 *  \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.3407 on 1996 degrees of freedom\nMultiple R-squared:  0.005058,  Adjusted R-squared:  0.003562 \nF-statistic: 3.382 on 3 and 1996 DF,  p-value: 0.01755"
+  },
+  {
+    "objectID": "posts/orthogonal-contrasts/index.html#conclusion",
+    "href": "posts/orthogonal-contrasts/index.html#conclusion",
+    "title": "Better A/B Testing with Orthogonal Contrasts",
+    "section": "Conclusion",
+    "text": "Conclusion\nTraditional A/B testing is fine for simple, single-factor experiments. But as your experimentation program matures, you’ll want to test multiple factors simultaneously and understand how they interact. Orthogonal contrasts provide a rigorous, efficient framework for doing exactly that.\nThe key insights: - Orthogonal contrasts partition variance into independent components - No multiple comparison penalties needed for pre-planned orthogonal contrasts - Higher statistical power by using all data for each contrast - Interactions are testable, revealing synergies (or conflicts) between changes\nNext time you’re designing an experiment with multiple variations, consider whether orthogonal contrasts might give you more insight than a simple A/B test. Your statistical power—and your users—will thank you."
+  },
+  {
+    "objectID": "posts/data-science-from-scratch/index.html",
+    "href": "posts/data-science-from-scratch/index.html",
+    "title": "Data Science from Scratch",
+    "section": "",
+    "text": "Is the R vs Python debate still alive in 2025?\nI’m not sure, but I was digging into an old tome by Joel Grus entitled Data Science from Scratch. It’s a great book, but reading through it this time reminded me of the old data science debate. Rather than wax philosophically on this topic, I’m going to translate the code from the book’s introduction and compare the two languages from there. It’s always best to work through examples."
+  },
+  {
+    "objectID": "posts/data-science-from-scratch/index.html#finding-key-connectors",
+    "href": "posts/data-science-from-scratch/index.html#finding-key-connectors",
+    "title": "Data Science from Scratch",
+    "section": "Finding Key Connectors",
+    "text": "Finding Key Connectors\nFirst, we’re given a list of user data. Each item in the list is a dictionary. Each dictionary has an ID and a name.\n\nusers = [\n    { \"id\": 0, \"name\": \"Hero\" },\n    { \"id\": 1, \"name\": \"Dunn\" },\n    { \"id\": 2, \"name\": \"Sue\" },\n    { \"id\": 3, \"name\": \"Chi\" },\n    { \"id\": 4, \"name\": \"Thor\" },\n    { \"id\": 5, \"name\": \"Clive\" },\n    { \"id\": 6, \"name\": \"Hicks\" },\n    { \"id\": 7, \"name\": \"Devin\" },\n    { \"id\": 8, \"name\": \"Kate\" },\n    { \"id\": 9, \"name\": \"Klein\" }\n]\n\nAlready, I’ve got some issues here. I don’t think this data structure makes sense. Why are we dealing with integer IDs at all? It can’t be for performance. We only have 10 users! Lets just use the string names directly.\n\nusers &lt;- c(\"Hero\", \"Dunn\", \"Sue\", \"Chi\", \"Thor\", \"Clive\", \"Hicks\", \"Devin\", \"Kate\", \"Klein\")\n\nUsing a character vector makes the most sense to me here. We don’t want integers because mathematical operations don’t make sense here.\nNext is the friendship data.\n\nfriendship_pairs = [(0, 1), (0, 2), (1, 2), (1, 3), (2, 3), (3, 4), (4, 5), (5, 6), (5, 7), (6, 8), (7, 8), (8, 9)]\n\nWe’ve got a list of ID pairs. By the way, this data structure is called an edge list. In R, it makes more sense to represent this as a two column matrix.\n\nedges &lt;- c(\"Hero\", \"Dunn\", \"Hero\", \"Sue\", \"Dunn\", \"Sue\", \"Dunn\", \"Chi\", \"Sue\", \"Chi\", \"Chi\", \"Thor\", \"Thor\", \"Clive\", \"Clive\", \"Hicks\", \"Clive\", \"Devin\", \"Hicks\", \"Kate\", \"Devin\", \"Kate\", \"Kate\", \"Klein\")\nfriendship_pairs &lt;- matrix(\n  data = edges,\n  ncol = 2,\n  byrow = TRUE\n)\nfriendship_pairs\n\n      [,1]    [,2]   \n [1,] \"Hero\"  \"Dunn\" \n [2,] \"Hero\"  \"Sue\"  \n [3,] \"Dunn\"  \"Sue\"  \n [4,] \"Dunn\"  \"Chi\"  \n [5,] \"Sue\"   \"Chi\"  \n [6,] \"Chi\"   \"Thor\" \n [7,] \"Thor\"  \"Clive\"\n [8,] \"Clive\" \"Hicks\"\n [9,] \"Clive\" \"Devin\"\n[10,] \"Hicks\" \"Kate\" \n[11,] \"Devin\" \"Kate\" \n[12,] \"Kate\"  \"Klein\"\n\n\nI’ll praise Python for one thing so far: data structure literals. I don’t need to print friendship_pairs in the Python code because that would just print out the actual code itself. Reminds me of Lisp. That’s good.\nBut let me dote on my first love R too. Common data structures like matrices are build right in. No import numpy as np required.\nMoving on, the author expertly points out that a list of pairs is not the best way to work with the data. Neither is a matrix really. Let’s transform the data.\n\n# Initialize the dict with an empty list for each user id:\nfriendships = {user[\"id\"]: [] for user in users}\n\n# And loop over the friendship pairs to populate it:\nfor i, j in friendship_pairs:\n    friendships[i].append(j)  # Add j as a friend of user i\n    friendships[j].append(i)  # Add i as a friend of user j\n\nprint(friendships)\n\n{0: [1, 2], 1: [0, 2, 3], 2: [0, 1, 3], 3: [1, 2, 4], 4: [3, 5], 5: [4, 6, 7], 6: [5, 8], 7: [5, 8], 8: [6, 7, 9], 9: [8]}\n\n\nThe author chose a dictionary here for its fast look-ups. I agree. In R, the equivalent data structure is a list.\n\ncompute_friendships &lt;- function(user) {\n  c(\n    friendship_pairs[, 1][friendship_pairs[, 2] == user],\n    friendship_pairs[, 2][friendship_pairs[, 1] == user]\n  )\n}\nfriendships &lt;- lapply(users, compute_friendships)\nnames(friendships) &lt;- users\nfriendships\n\n$Hero\n[1] \"Dunn\" \"Sue\" \n\n$Dunn\n[1] \"Hero\" \"Sue\"  \"Chi\" \n\n$Sue\n[1] \"Hero\" \"Dunn\" \"Chi\" \n\n$Chi\n[1] \"Dunn\" \"Sue\"  \"Thor\"\n\n$Thor\n[1] \"Chi\"   \"Clive\"\n\n$Clive\n[1] \"Thor\"  \"Hicks\" \"Devin\"\n\n$Hicks\n[1] \"Clive\" \"Kate\" \n\n$Devin\n[1] \"Clive\" \"Kate\" \n\n$Kate\n[1] \"Hicks\" \"Devin\" \"Klein\"\n\n$Klein\n[1] \"Kate\"\n\n\nWe don’t like for-loops in R. The apply() family of functions are much better. The next question is “What’s the average number of connections?”\n\ndef number_of_friends(user):\n    \"\"\"How many friends does _user_ have?\"\"\"\n    user_id = user[\"id\"]\n    friend_ids = friendships[user_id]\n    return len(friend_ids)\n\ntotal_connections = sum(number_of_friends(user)\n                        for user in users)        # 24\n\n\nassert total_connections == 24\n\nnum_users = len(users)                            # length of the users list\navg_connections = total_connections / num_users   # 24 / 10 == 2.4\n\n\nassert num_users == 10\nassert avg_connections == 2.4\n\nThis is a one-liner in R.\n\nmean(lengths(friendships))\n\n[1] 2.4\n\n\nNext, we want sort from most to least friends.\n\n# Create a list (user_id, number_of_friends).\nnum_friends_by_id = [(user[\"id\"], number_of_friends(user))\n                     for user in users]\n\nnum_friends_by_id.sort(                                # Sort the list\n       key=lambda id_and_friends: id_and_friends[1],   # by num_friends\n       reverse=True)                                   # largest to smallest\n\n# Each pair is (user_id, num_friends):\n# [(1, 3), (2, 3), (3, 3), (5, 3), (8, 3),\n#  (0, 2), (4, 2), (6, 2), (7, 2), (9, 1)]\n\n\nassert num_friends_by_id[0][1] == 3     # several people have 3 friends\nassert num_friends_by_id[-1] == (9, 1)  # user 9 has only 1 friend\n\nYet another one-liner in R.\n\nsort(lengths(friendships), decreasing = TRUE)\n\n Dunn   Sue   Chi Clive  Kate  Hero  Thor Hicks Devin Klein \n    3     3     3     3     3     2     2     2     2     1"
+  },
+  {
+    "objectID": "posts/data-science-from-scratch/index.html#data-scientists-you-may-know",
+    "href": "posts/data-science-from-scratch/index.html#data-scientists-you-may-know",
+    "title": "Data Science from Scratch",
+    "section": "Data Scientists You May Know",
+    "text": "Data Scientists You May Know\nThe next section is basically meanders a bit, so I’ll skip the bad friend-of-a-friend implementation and go straight to the correct one.\n\nfrom collections import Counter                   # not loaded by default\n\ndef friends_of_friends(user):\n    user_id = user[\"id\"]\n    return Counter(\n        foaf_id\n        for friend_id in friendships[user_id]     # For each of my friends,\n        for foaf_id in friendships[friend_id]     # find their friends\n        if foaf_id != user_id                     # who aren't me\n        and foaf_id not in friendships[user_id]   # and aren't my friends.\n    )\n\nassert friends_of_friends(users[3]) == Counter({0: 2, 5: 1})\n\nThis one is bit more tricky in R, but it helps to break it down case by case.\n\nfriends_of_friends &lt;- function(user) {\n  users_friends &lt;- friendships[[user]]\n  friendships[names(friendships) %in% users_friends] |&gt; \n    lapply(\\(friends_list) setdiff(friends_list, user)) |&gt; \n    lapply(\\(friends_list) setdiff(friends_list, users_friends)) |&gt; \n    unlist() |&gt; \n    table() |&gt; \n    sort(decreasing = TRUE)\n}\n\nfriends_of_friends(\"Chi\")\n\n\n Hero Clive \n    2     1 \n\n\nIt’s easy to extract a parts of many objects in R using single brackets and %in% to match names. From there, a combination of lapply() and setdiff() make it easy to remove the user from the list as well as the user’s direct friends. Next, unlist() is a mostly reliable way to reduce a list down to a vector. Finally, table() and sort() get us to our final result. By the way, I don’t like the function name friends_of_friends(). I think something like n_mutual_friends() would be more clear.\nI’m going to skip the next part about users’ interests. It doesn’t really go anywhere."
+  },
+  {
+    "objectID": "posts/data-science-from-scratch/index.html#salaries-and-experience",
+    "href": "posts/data-science-from-scratch/index.html#salaries-and-experience",
+    "title": "Data Science from Scratch",
+    "section": "Salaries and Experience",
+    "text": "Salaries and Experience\nNext we’re given some anonymous data on salaries (in dollars) and tenures (in years).\n\nsalaries_and_tenures = [(83000, 8.7), (88000, 8.1),\n                        (48000, 0.7), (76000, 6),\n                        (69000, 6.5), (76000, 7.5),\n                        (60000, 2.5), (83000, 10),\n                        (48000, 1.9), (63000, 4.2)]\n\nAgain, data structures are everything here. This is a clear case for a data frame for me.\n\nsalaries_and_tenures &lt;- data.frame(\n  salary = c(83000, 88000, 48000, 76000, 69000, 76000, 60000, 83000, 48000, 63000),\n  tenure = c(8.7, 8.1, 0.7, 6, 6.5, 7.5, 2.5, 10, 1.9, 4.2)\n)\nsalaries_and_tenures\n\n   salary tenure\n1   83000    8.7\n2   88000    8.1\n3   48000    0.7\n4   76000    6.0\n5   69000    6.5\n6   76000    7.5\n7   60000    2.5\n8   83000   10.0\n9   48000    1.9\n10  63000    4.2\n\n\nColumn names are so nice to have here. Sure, a two-column matrix would work too, but I prefer matrices to contain homogeneous data within. Salary and tenure are measured in different units, which makes a data frame preferred for me.\nNext, the author includes a plot, but with no code. I get it. He doesn’t want introduce Matplotlib yet, but in R we get plots built right in.\n\nplot(\n  salary ~ tenure, \n  data = salaries_and_tenures,\n  main = \"Salaries by Years Experience\",\n  xlab = \"Years Experience\",\n  ylab = \"Salary\"\n)\n\n\n\n\n\n\n\n\nSkipping the erroneous average salary by tenure piece, we move on to bucketing tenure.\n\nfrom collections import defaultdict\n\ndef tenure_bucket(tenure):\n    if tenure &lt; 2:\n        return \"less than two\"\n    elif tenure &lt; 5:\n        return \"between two and five\"\n    else:\n        return \"more than five\"\n\n# Keys are tenure buckets, values are lists of salaries for that bucket.\nsalary_by_tenure_bucket = defaultdict(list)\n\nfor salary, tenure in salaries_and_tenures:\n    bucket = tenure_bucket(tenure)\n    salary_by_tenure_bucket[bucket].append(salary)\n\n# Keys are tenure buckets, values are average salary for that bucket\naverage_salary_by_bucket = {\n  tenure_bucket: sum(salaries) / len(salaries)\n  for tenure_bucket, salaries in salary_by_tenure_bucket.items()\n}\n\nassert average_salary_by_bucket == {\n    'between two and five': 61500.0,\n    'less than two': 48000.0,\n    'more than five': 79166.66666666667\n}\n\nThis is another win for R, which contains a built-in function called cut() for this. Even better, R contains a default data type for this called a factor, which is similar to an enum in other programming languages, except factors are integer vectors under the hood.\n\nsalaries_and_tenures$tenure_bucket &lt;- cut(\n  x = salaries_and_tenures$tenure,\n  breaks = c(0, 2, 5, Inf),\n  labels = c(\"less than two\", \"between two and five\", \"more than five\"),\n  right = FALSE,\n  ordered_result = TRUE\n)\n\naggregate(salary ~ tenure_bucket, data = salaries_and_tenures, mean)\n\n         tenure_bucket   salary\n1        less than two 48000.00\n2 between two and five 61500.00\n3       more than five 79166.67\n\n\nAlso, aggregate() is super powerful, if complicated. I’m going to skip the rest of the examples, since they aren’t that interesting."
+  },
+  {
+    "objectID": "posts/data-science-from-scratch/index.html#diversion-igraph",
+    "href": "posts/data-science-from-scratch/index.html#diversion-igraph",
+    "title": "Data Science from Scratch",
+    "section": "Diversion: igraph",
+    "text": "Diversion: igraph\nGoing back to the first section on the DataSciencester social network, it strikes me that there is a better tool this analysis: igraph. It’s a collection of network analysis tools implemented in C with bindings Mathematica, Python, and R. Since the R bindings for igraph were developed first (and I’m biased towards R), we’ll use that version.\n\nlibrary(igraph)\n\n\nAttaching package: 'igraph'\n\n\nThe following objects are masked from 'package:stats':\n\n    decompose, spectrum\n\n\nThe following object is masked from 'package:base':\n\n    union\n\ng &lt;- make_graph(edges = edges, directed = FALSE)\nplot(g)\n\n\n\n\n\n\n\n\nWe can size each vertex according to degree.\n\nV(g)$size &lt;- degree(g) * 10\nplot(g, vertex.size = V(g)$size)\n\n\n\n\n\n\n\n\nBut actually betweenness tells more of the story for this graph.\n\nV(g)$size &lt;- betweenness(g)\nplot(g, vertex.size = V(g)$size)"
+  },
+  {
+    "objectID": "posts/data-science-from-scratch/index.html#conclusion",
+    "href": "posts/data-science-from-scratch/index.html#conclusion",
+    "title": "Data Science from Scratch",
+    "section": "Conclusion",
+    "text": "Conclusion\nThe Zen of Python will tell you that Python is “batteries included.” I’m here to tell you that R is “batteries included” for data science. R has built-in data frames and matrices. It has plotting built right in too, and you know I love that given this site’s name. It’s vectorized from the start and comes with lots of handy functional programming tools like apply() and the gang. And we didn’t even fit a statistical model. Those are built right in too. So do I need to write Data Science from Scratch in R or what?"
+  },
+  {
+    "objectID": "posts/bank-account-survival/index.html",
+    "href": "posts/bank-account-survival/index.html",
+    "title": "Bank Account Survival Analysis",
+    "section": "",
+    "text": "Ever wondered how long your savings will last? Your bank wants to know that too."
+  },
+  {
+    "objectID": "posts/bank-account-survival/index.html#account-balances",
+    "href": "posts/bank-account-survival/index.html#account-balances",
+    "title": "Bank Account Survival Analysis",
+    "section": "Account Balances",
+    "text": "Account Balances\nLet’s start with some fake data.\n\nset.seed(123)\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.1     ✔ stringr   1.5.2\n✔ ggplot2   4.0.0     ✔ tibble    3.3.0\n✔ lubridate 1.9.4     ✔ tidyr     1.3.1\n✔ purrr     1.1.0     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(knitr) # for `kable()`\n\nn_accounts &lt;- 500\n\nfloor_zero &lt;- function(x) ifelse(x &lt; 0, 0, x)\n\nbalance_by_month &lt;- expand_grid(\n  account_id = as.character(seq_len(n_accounts)), \n  date = ymd(080101) + months(0:11)\n) |&gt; \n  mutate(month = month(date, label = TRUE, abbr = FALSE)) |&gt; \n  group_by(account_id) |&gt; \n  mutate(\n    balance = account_id |&gt; \n      rnorm(mean = 0, sd = 1000) |&gt; \n      cumsum() |&gt; \n      floor_zero()\n  )\n\nbalance_by_month |&gt; \n  head() |&gt; \n  kable()\n\n\n\n\naccount_id\ndate\nmonth\nbalance\n\n\n\n\n1\n2008-01-01\nJanuary\n0.0000\n\n\n1\n2008-02-01\nFebruary\n0.0000\n\n\n1\n2008-03-01\nMarch\n768.0552\n\n\n1\n2008-04-01\nApril\n838.5636\n\n\n1\n2008-05-01\nMay\n967.8513\n\n\n1\n2008-06-01\nJune\n2682.9163\n\n\n\n\n\nSo we’ve got monthly balances for one year from 500 accounts. Let’s plot the data!\n\nggplot(balance_by_month, aes(x = date, y = balance, fill = account_id)) +\n  geom_line(alpha = 0.2)\n\n\n\n\n\n\n\n\nWe’ve got some random walks floored at zero. We’re assuming that balances can’t be negative. It looks like some folks are doing really well but others not so much. How do we translate these balances to survival models."
+  },
+  {
+    "objectID": "posts/bank-account-survival/index.html#defining-the-event",
+    "href": "posts/bank-account-survival/index.html#defining-the-event",
+    "title": "Bank Account Survival Analysis",
+    "section": "Defining the Event",
+    "text": "Defining the Event\nSurvival analysis is all about examining time-to-event phenomena. Back in ecology land, the event was death, but when does a bank account die? Earlier we floored balances at zero. Some banks charge overdraft fees, so when a customer reaches zero, they’re likely to be charged a fee. We’ll just assume that reaching zero means that a bank account is done for. First let’s calculate the first month that the account hit zero. That’s when the “death” event occurs.\n\nfirst_zero_month &lt;- balance_by_month |&gt; \n  filter(balance == 0) |&gt; \n  summarise(first_zero_month = min(.data$month))\n\nggplot(first_zero_month, aes(x = first_zero_month)) + \n  geom_bar()\n\n\n\n\n\n\n\n\nIt looks like a cascade of death events. Most occur in the first month with fewer and fewer as the year goes on. But we’ve got a problem! We need to represent this in the data. In this analysis, we don’t want bank accounts to suddenly come back alive! We need to define our event clearly.\n\nevent_by_month &lt;- balance_by_month |&gt; \n  left_join(first_zero_month, by = \"account_id\") |&gt; \n  mutate(event = if_else(month &gt;= first_zero_month, 1, 0)) |&gt; \n  mutate(month = as.integer(month)) |&gt; \n  select(account_id, month, event)\n\nevent_by_month |&gt; \n  head() |&gt; \n  kable()\n\n\n\n\naccount_id\nmonth\nevent\n\n\n\n\n1\n1\n1\n\n\n1\n2\n1\n\n\n1\n3\n1\n\n\n1\n4\n1\n\n\n1\n5\n1\n\n\n1\n6\n1\n\n\n\n\n\nNow our event column stays put once the account balance hits zero."
+  },
+  {
+    "objectID": "posts/bank-account-survival/index.html#fitting-our-first-survival-model",
+    "href": "posts/bank-account-survival/index.html#fitting-our-first-survival-model",
+    "title": "Bank Account Survival Analysis",
+    "section": "Fitting Our First Survival Model",
+    "text": "Fitting Our First Survival Model\nSurvival models are built in to R. Ain’t that great? Let’s fit a model.\n\nlibrary(survival)\n\nfit_customer &lt;- survfit(Surv(time = event_by_month$month, event = event_by_month$event) ~ 1)\n\nplot(fit_customer, xlab = \"Time\", ylab = \"Survival Probability\", main = \"Survival Curve for Customers\")\n\n\n\n\n\n\n\n\nBase R plots are just the best sometimes. Now let’s calculate the average life of an account using the Kaplan-Meier estimator.\n\nsurvival_prob &lt;- fit_customer$surv\ntimes &lt;- fit_customer$time\ndelta_time &lt;- c(times[1], diff(times))\naccount_avg_life &lt;- sum(survival_prob * delta_time)\n\nThere you have it! On average an account lasts 6 months."
+  },
+  {
+    "objectID": "posts/bs4ds/index.html",
+    "href": "posts/bs4ds/index.html",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "",
+    "text": "What’s up with all this Bayesian statistics bs?\nThis post is an adaptation of a talk I gave at the Columbus Georgia Data Science Meetup."
+  },
+  {
+    "objectID": "posts/bs4ds/index.html#bayes-theorem",
+    "href": "posts/bs4ds/index.html#bayes-theorem",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "Bayes’ Theorem",
+    "text": "Bayes’ Theorem\n\\[ P(BS \\mid test) = \\frac{P(test \\mid BS) \\, P(BS)}{P(test)} \\]\nThe test is 99% accurate, so \\(P(test \\mid BS) = 0.99\\). BS prevalence is 0.1%, so \\(P(BS) = 0.001\\). We want to know chance of testing positive, \\(P(test)\\), so we reformulate like so:\n\\[P(test) = P(BS) \\times P(test \\mid BS) + P(-BS) \\times P(test \\mid -BS)\\]\nSo we plug and chug:\n\\[P(BS \\mid test) = \\frac{0.99 \\times 0.001}{0.001 \\times 0.99 + (1 - 0.001) \\times (1 - 0.99)}\\]\nYou tested positive, but there’s only a 9% chance that you actually have BS."
+  },
+  {
+    "objectID": "posts/bs4ds/index.html#whats-the-point",
+    "href": "posts/bs4ds/index.html#whats-the-point",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "What’s the point?",
+    "text": "What’s the point?\nBayes’ Theorem rocks!\n\\[\n\\begin{aligned}\n\\overbrace{p(\\theta | \\text{Data})}^{\\text{posterior}} &= \\frac{\\overbrace{p(\\text{Data} | \\theta)}^{\\text{likelihood}} \\times \\overbrace{p(\\theta)}^{\\text{prior}}}{\\underbrace{p(\\text{Data})}_{\\text{marginal likelihood}}} \\\\\n&\\propto p(\\text{Data} | \\theta) \\times p(\\theta) \\\\\n\\end{aligned}\n\\]\nWe can confront our model with the data and incorporate our prior understanding to draw inference about parameters of interest."
+  },
+  {
+    "objectID": "posts/bs4ds/index.html#stan",
+    "href": "posts/bs4ds/index.html#stan",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "Stan",
+    "text": "Stan\n\nProbabilistic programming language\nImplements fancy HMC algorithms\nWritten in C++ for speed\nInterfaces for R (rstan), python (pystan), etc.\nActive developers on cutting-edge of HMC research\nLarge user community"
+  },
+  {
+    "objectID": "posts/bs4ds/index.html#the-data",
+    "href": "posts/bs4ds/index.html#the-data",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "The Data",
+    "text": "The Data\n\ndf &lt;- expand.grid(\n  version = c(\"A\", \"B\"), \n  converted = c(\"Yes\", \"No\")\n)\ndf$n_visitors &lt;- c(1300, 1275, 120, 125)\ndf\n\n  version converted n_visitors\n1       A       Yes       1300\n2       B       Yes       1275\n3       A        No        120\n4       B        No        125"
+  },
+  {
+    "objectID": "posts/bs4ds/index.html#the-model",
+    "href": "posts/bs4ds/index.html#the-model",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "The Model",
+    "text": "The Model\nThe model of the experiment is an A/B test in which\n\\[\n\\begin{aligned}\nn_A &\\sim \\mathsf{Binomial}(N_A, \\pi_A) & n_B &\\sim \\mathsf{Binomial}(N_B, \\pi_B) \\\\\n\\pi_A &= \\mathsf{InvLogit}(\\eta_A) & \\pi_B &= \\mathsf{InvLogit}(\\eta_B) \\\\\n\\eta_A &= \\mathsf{Normal}(0, 2.5) & \\eta_B &= \\mathsf{Normal}(0, 2.5)\n\\end{aligned}\n\\]"
+  },
+  {
+    "objectID": "posts/bs4ds/index.html#implementation-in-stan",
+    "href": "posts/bs4ds/index.html#implementation-in-stan",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "Implementation in Stan",
+    "text": "Implementation in Stan\n\ndata {\n  int&lt;lower=1&gt; visitors_A;\n  int&lt;lower=0&gt; conversions_A;\n  int&lt;lower=1&gt; visitors_B;\n  int&lt;lower=0&gt; conversions_B;\n}\nparameters {\n  real eta_A;\n  real eta_B;\n}\ntransformed parameters {\n  real&lt;lower=0., upper=1.&gt; pi_A = inv_logit(eta_A);\n  real&lt;lower=0., upper=1.&gt; pi_B = inv_logit(eta_B);\n}\nmodel {\n  eta_A ~ normal(0., 2.5);\n  eta_B ~ normal(0., 2.5);\n  conversions_A ~ binomial(visitors_A, pi_A);\n  conversions_B ~ binomial(visitors_B, pi_B);\n}\ngenerated quantities {\n  real&lt;lower=-1., upper=1.&gt; pi_diff;\n  real eta_diff;\n  real lift;\n\n  pi_diff = pi_B - pi_A;\n  eta_diff = eta_B - eta_A;\n  lift = (pi_B - pi_A) / pi_B;\n}"
+  },
+  {
+    "objectID": "posts/bs4ds/index.html#run-and-fit-the-model",
+    "href": "posts/bs4ds/index.html#run-and-fit-the-model",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "Run and fit the model",
+    "text": "Run and fit the model\n\nabtest_data &lt;- list(\n  visitors_A = 1300,\n  visitors_B = 1275,\n  conversions_A = 120,\n  conversions_B = 125\n)\n\nabtest_fit &lt;- rstan::sampling(\n  model, \n  data = abtest_data,\n  chains = 1, \n  iter = 1000, \n  refresh = 0\n)"
+  },
+  {
+    "objectID": "posts/bs4ds/index.html#calculate-the-probability-that-pi_a",
+    "href": "posts/bs4ds/index.html#calculate-the-probability-that-pi_a",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "Calculate the probability that \\(\\pi_A\\)",
+    "text": "Calculate the probability that \\(\\pi_A\\)\n\npi_A &lt;- drop(rstan::extract(abtest_fit, \"pi_A\")[[1]])\npi_B &lt;- drop(rstan::extract(abtest_fit, \"pi_B\")[[1]])\nmean(pi_A &gt; pi_B)\n\n[1] 0.28\n\nmean(pi_A &lt; pi_B)\n\n[1] 0.72\n\n\nLooks like Version B wins!"
+  },
+  {
+    "objectID": "posts/bs4ds/index.html#plot-posteriors",
+    "href": "posts/bs4ds/index.html#plot-posteriors",
+    "title": "Bayesian Statistics for Data Science",
+    "section": "Plot posteriors",
+    "text": "Plot posteriors\n\nposterior &lt;- as.matrix(abtest_fit)\nbayesplot::mcmc_areas(posterior, pars = c(\"pi_A\", \"pi_B\"))"
+  },
+  {
+    "objectID": "posts/probability-distributions/index.html",
+    "href": "posts/probability-distributions/index.html",
+    "title": "Probability Distributions and Their Stories: Baller Edition",
+    "section": "",
+    "text": "Can you ball with the best (probability distributions)? 🏀"
+  },
+  {
+    "objectID": "posts/probability-distributions/index.html#the-distributions3-package",
+    "href": "posts/probability-distributions/index.html#the-distributions3-package",
+    "title": "Probability Distributions and Their Stories: Baller Edition",
+    "section": "The distributions3 package",
+    "text": "The distributions3 package\nThe {distributions3} package a provides a number of probability distributions as S3 objects. It also provides generic functions that work with each distribution. It’s a really nice and tidy API. I think base R’s probability functions should probably have been designed this way from the start.\nThe main generics are:\n\nrandom(): Draw samples from a distribution.\npdf(): Evaluate the probability density (or mass) at a point.\ncdf(): Evaluate the cumulative probability up to a point.\nquantile(): Determine the quantile for a given probability. Inverse of cdf().\n\nLet’s load the package and go from there.\n\nlibrary(distributions3)\n\n\nAttaching package: 'distributions3'\n\n\nThe following object is masked from 'package:stats':\n\n    Gamma\n\n\nThe following object is masked from 'package:grDevices':\n\n    pdf"
+  },
+  {
+    "objectID": "posts/probability-distributions/index.html#bernoulli-distribution",
+    "href": "posts/probability-distributions/index.html#bernoulli-distribution",
+    "title": "Probability Distributions and Their Stories: Baller Edition",
+    "section": "Bernoulli distribution",
+    "text": "Bernoulli distribution\nA Bernoulli trial is an experiment that has two outcomes that can be encoded as success (\\(y=1\\)) or failure (\\(y=0\\)). The result \\(y\\) of a Bernoulli trial is Bernoulli distributed.\nElena Delle Donne, the greatest free throw shooter of all time, has a career free throw success rate of 93.4%. The probability that she makes her next free throw is Bernoulli distributed.\n\nX &lt;- Bernoulli(0.7)\nX\n\n[1] \"Bernoulli(p = 0.7)\"\n\nmean(X)\n\n[1] 0.7\n\nvariance(X)\n\n[1] 0.21\n\nskewness(X)\n\n[1] -0.8728716\n\nkurtosis(X)\n\n[1] -1.238095\n\nrandom(X, 10)\n\n [1] 0 1 1 1 0 1 0 0 1 0\n\npdf(X, 1)\n\n[1] 0.7\n\nlog_pdf(X, 1)\n\n[1] -0.3566749\n\ncdf(X, 0)\n\n[1] 0.3\n\nquantile(X, 0.7)\n\n[1] 1\n\ncdf(X, quantile(X, 0.7))\n\n[1] 1\n\nquantile(X, cdf(X, 0.7))\n\n[1] 0"
+  },
+  {
+    "objectID": "posts/probability-distributions/index.html#binomial",
+    "href": "posts/probability-distributions/index.html#binomial",
+    "title": "Probability Distributions and Their Stories: Baller Edition",
+    "section": "Binomial",
+    "text": "Binomial\nWhat if we are interested in more than one shot? It turns out that the Bernoulli distribution is just a special case of the Binomial distribution where \\(N=1\\).\nIf we perform \\(N\\) Bernoulli trials, each with probability \\(\\theta\\) of success. The number of successes, \\(n\\), is Binomially distributed.\nShaquille O’Neal will always be one of the most dominant big men of all time, but his free throw percentage, by comparison was infamously atrocious. He averaged just 52.7% from the line with an average of 9.3 free-throw attempts per game.\n\nX &lt;- Binomial(size = 10, p = 0.527)\nX\n\n[1] \"Binomial(size = 10, p = 0.527)\"\n\nmean(X)\n\n[1] 5.27\n\nvariance(X)\n\n[1] 2.49271\n\nskewness(X)\n\n[1] -0.0342025\n\nkurtosis(X)\n\n[1] -0.1988302\n\nrandom(X, 10)\n\n [1] 0 4 7 5 7 4 6 6 8 8\n\npdf(X, 2L)\n\n[1] 0.03131287\n\nlog_pdf(X, 2L)\n\n[1] -3.463726\n\ncdf(X, 4L)\n\n[1] 0.3125491\n\nquantile(X, 0.7)\n\n[1] 6\n\ncdf(X, quantile(X, 0.7))\n\n[1] 0.7802545\n\nquantile(X, cdf(X, 7))\n\n[1] 7"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "11rchitwood.github.io",
+    "section": "",
+    "text": "Bayesian Statistics for Data Science\n\n\n\n\n\n\n\n\n\n\n\n\n\nBank Account Survival Analysis\n\n\n\n\n\n\n\n\n\n\n\n\n\nProbability Distributions and Their Stories: Baller Edition\n\n\n\n\n\n\n\n\n\n\n\n\n\nData Science from Scratch\n\n\n\n\n\n\n\n\n\n\n\n\n\nBetter A/B Testing with Orthogonal Contrasts\n\n\n\n\n\n\n\n\nNo matching items"
+  }
+]
