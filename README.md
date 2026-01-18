@@ -1,3 +1,3 @@
 # 11rchitwood.github.io
 
-My data science portfolio
+My Data Science Portfolio
