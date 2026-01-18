@@ -207,7 +207,7 @@
     "href": "posts/bs4ds/index.html#calculate-the-probability-that-pi_a",
     "title": "Bayesian Statistics for Data Science",
     "section": "Calculate the probability that \\(\\pi_A\\)",
-    "text": "Calculate the probability that \\(\\pi_A\\)\n\npi_A &lt;- drop(rstan::extract(abtest_fit, \"pi_A\")[[1]])\npi_B &lt;- drop(rstan::extract(abtest_fit, \"pi_B\")[[1]])\nmean(pi_A &gt; pi_B)\n\n[1] 0.28\n\nmean(pi_A &lt; pi_B)\n\n[1] 0.72\n\n\nLooks like Version B wins!"
+    "text": "Calculate the probability that \\(\\pi_A\\)\n\npi_A &lt;- drop(rstan::extract(abtest_fit, \"pi_A\")[[1]])\npi_B &lt;- drop(rstan::extract(abtest_fit, \"pi_B\")[[1]])\nmean(pi_A &gt; pi_B)\n\n[1] 0.314\n\nmean(pi_A &lt; pi_B)\n\n[1] 0.686\n\n\nLooks like Version B wins!"
   },
   {
     "objectID": "posts/bs4ds/index.html#plot-posteriors",
@@ -217,38 +217,10 @@
     "text": "Plot posteriors\n\nposterior &lt;- as.matrix(abtest_fit)\nbayesplot::mcmc_areas(posterior, pars = c(\"pi_A\", \"pi_B\"))"
   },
   {
-    "objectID": "posts/probability-distributions/index.html",
-    "href": "posts/probability-distributions/index.html",
-    "title": "Probability Distributions and Their Stories: Baller Edition",
-    "section": "",
-    "text": "Can you ball with the best (probability distributions)? 🏀"
-  },
-  {
-    "objectID": "posts/probability-distributions/index.html#the-distributions3-package",
-    "href": "posts/probability-distributions/index.html#the-distributions3-package",
-    "title": "Probability Distributions and Their Stories: Baller Edition",
-    "section": "The distributions3 package",
-    "text": "The distributions3 package\nThe {distributions3} package a provides a number of probability distributions as S3 objects. It also provides generic functions that work with each distribution. It’s a really nice and tidy API. I think base R’s probability functions should probably have been designed this way from the start.\nThe main generics are:\n\nrandom(): Draw samples from a distribution.\npdf(): Evaluate the probability density (or mass) at a point.\ncdf(): Evaluate the cumulative probability up to a point.\nquantile(): Determine the quantile for a given probability. Inverse of cdf().\n\nLet’s load the package and go from there.\n\nlibrary(distributions3)\n\n\nAttaching package: 'distributions3'\n\n\nThe following object is masked from 'package:stats':\n\n    Gamma\n\n\nThe following object is masked from 'package:grDevices':\n\n    pdf"
-  },
-  {
-    "objectID": "posts/probability-distributions/index.html#bernoulli-distribution",
-    "href": "posts/probability-distributions/index.html#bernoulli-distribution",
-    "title": "Probability Distributions and Their Stories: Baller Edition",
-    "section": "Bernoulli distribution",
-    "text": "Bernoulli distribution\nA Bernoulli trial is an experiment that has two outcomes that can be encoded as success (\\(y=1\\)) or failure (\\(y=0\\)). The result \\(y\\) of a Bernoulli trial is Bernoulli distributed.\nElena Delle Donne, the greatest free throw shooter of all time, has a career free throw success rate of 93.4%. The probability that she makes her next free throw is Bernoulli distributed.\n\nX &lt;- Bernoulli(0.7)\nX\n\n[1] \"Bernoulli(p = 0.7)\"\n\nmean(X)\n\n[1] 0.7\n\nvariance(X)\n\n[1] 0.21\n\nskewness(X)\n\n[1] -0.8728716\n\nkurtosis(X)\n\n[1] -1.238095\n\nrandom(X, 10)\n\n [1] 0 1 1 1 0 1 0 0 1 0\n\npdf(X, 1)\n\n[1] 0.7\n\nlog_pdf(X, 1)\n\n[1] -0.3566749\n\ncdf(X, 0)\n\n[1] 0.3\n\nquantile(X, 0.7)\n\n[1] 1\n\ncdf(X, quantile(X, 0.7))\n\n[1] 1\n\nquantile(X, cdf(X, 0.7))\n\n[1] 0"
-  },
-  {
-    "objectID": "posts/probability-distributions/index.html#binomial",
-    "href": "posts/probability-distributions/index.html#binomial",
-    "title": "Probability Distributions and Their Stories: Baller Edition",
-    "section": "Binomial",
-    "text": "Binomial\nWhat if we are interested in more than one shot? It turns out that the Bernoulli distribution is just a special case of the Binomial distribution where \\(N=1\\).\nIf we perform \\(N\\) Bernoulli trials, each with probability \\(\\theta\\) of success. The number of successes, \\(n\\), is Binomially distributed.\nShaquille O’Neal will always be one of the most dominant big men of all time, but his free throw percentage, by comparison was infamously atrocious. He averaged just 52.7% from the line with an average of 9.3 free-throw attempts per game.\n\nX &lt;- Binomial(size = 10, p = 0.527)\nX\n\n[1] \"Binomial(size = 10, p = 0.527)\"\n\nmean(X)\n\n[1] 5.27\n\nvariance(X)\n\n[1] 2.49271\n\nskewness(X)\n\n[1] -0.0342025\n\nkurtosis(X)\n\n[1] -0.1988302\n\nrandom(X, 10)\n\n [1] 0 4 7 5 7 4 6 6 8 8\n\npdf(X, 2L)\n\n[1] 0.03131287\n\nlog_pdf(X, 2L)\n\n[1] -3.463726\n\ncdf(X, 4L)\n\n[1] 0.3125491\n\nquantile(X, 0.7)\n\n[1] 6\n\ncdf(X, quantile(X, 0.7))\n\n[1] 0.7802545\n\nquantile(X, cdf(X, 7))\n\n[1] 7"
-  },
-  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "11rchitwood.github.io",
     "section": "",
-    "text": "Bayesian Statistics for Data Science\n\n\n\n\n\n\n\n\n\n\n\n\n\nBank Account Survival Analysis\n\n\n\n\n\n\n\n\n\n\n\n\n\nProbability Distributions and Their Stories: Baller Edition\n\n\n\n\n\n\n\n\n\n\n\n\n\nData Science from Scratch\n\n\n\n\n\n\n\n\n\n\n\n\n\nBetter A/B Testing with Orthogonal Contrasts\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Bayesian Statistics for Data Science\n\n\n\n\n\n\n\n\n\n\n\n\n\nBank Account Survival Analysis\n\n\n\n\n\n\n\n\n\n\n\n\n\nData Science from Scratch\n\n\n\n\n\n\n\n\n\n\n\n\n\nBetter A/B Testing with Orthogonal Contrasts\n\n\n\n\n\n\n\n\nNo matching items"
   }
 ]

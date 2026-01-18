@@ -345,11 +345,11 @@ n_A &amp;\sim \mathsf{Binomial}(N_A, \pi_A) &amp; n_B &amp;\sim \mathsf{Binomial
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pi_B <span class="ot">&lt;-</span> <span class="fu">drop</span>(rstan<span class="sc">::</span><span class="fu">extract</span>(abtest_fit, <span class="st">"pi_B"</span>)[[<span class="dv">1</span>]])</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(pi_A <span class="sc">&gt;</span> pi_B)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.28</code></pre>
+<pre><code>[1] 0.314</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(pi_A <span class="sc">&lt;</span> pi_B)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.72</code></pre>
+<pre><code>[1] 0.686</code></pre>
 </div>
 </div>
 <p>Looks like Version B wins!</p>
