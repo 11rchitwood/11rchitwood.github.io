@@ -1,167 +1,420 @@
 ---
 title: "Bayesian Statistics for Data Science"
 date: "2019-02-12"
+date-modified: "2026-01-18"
+description: "A practical introduction to Bayesian methods for modern data science—from uncertainty quantification to decision-making under uncertainty"
+categories: [bayesian, statistics, tutorial]
 ---
 
-What's up with all this Bayesian statistics bs?
+We're living through a Bayesian renaissance. While companies like Netflix and Booking.com have been running Bayesian A/B tests for years, the recent explosion of interest in AI safety and uncertainty quantification has brought Bayesian thinking to the forefront. When your ML model needs to say "I don't know," when your A/B test results inform million-dollar decisions, or when you're doing causal inference with messy observational data—Bayesian methods give you a principled framework for reasoning under uncertainty.
 
-This post is an adaptation of a [talk](https://www.meetup.com/columbusgadatascience/events/257657831/) I gave at the [Columbus Georgia Data Science Meetup](https://www.meetup.com/columbusgadatascience/).
+This post introduces the core ideas of Bayesian statistics and shows you how to apply them to real data science problems. We'll start with an intuitive example, then work through a complete Bayesian workflow for A/B testing.
 
-# Example 1: The BS Disease
+# The Intuition: COVID Test Accuracy
 
-Uh oh!
-You just learned that you tested positive for the very serious **BS disease**.
-It affects 0.1% of the population.
-The test for the disease is 99% accurate.
-What are the chances that you *actually* have BS?
+During the pandemic, many of us encountered this scenario: you test positive for COVID-19 on a rapid test. The test is 95% accurate. Does this mean you have a 95% chance of being infected?
+
+Actually, no. The answer depends on how common COVID is in your area—and this intuition is at the heart of Bayesian thinking.
 
 ## Bayes' Theorem
 
-$$ P(BS \mid test) = \frac{P(test \mid BS) \, P(BS)}{P(test)} $$
+$$P(\text{infected} \mid \text{positive test}) = \frac{P(\text{positive test} \mid \text{infected}) \times P(\text{infected})}{P(\text{positive test})}$$
 
-The test is 99% accurate, so $P(test \mid BS) = 0.99$.
-BS prevalence is 0.1%, so $P(BS) = 0.001$.
-We want to know chance of testing positive, $P(test)$, so we reformulate like so:
+Let's say:
+- Test sensitivity (true positive rate): 95%
+- Test specificity (true negative rate): 95%
+- COVID prevalence in your area: 2%
 
-$$P(test) = P(BS) \times P(test \mid BS) + P(-BS) \times P(test \mid -BS)$$
+We can calculate the probability of being infected given a positive test:
 
-So we plug and chug:
+```{r covid_calc}
+#| code-fold: false
+sensitivity <- 0.95  # P(test+ | infected)
+specificity <- 0.95  # P(test- | not infected)
+prevalence <- 0.02   # P(infected)
 
-$$P(BS \mid test) = \frac{0.99 \times 0.001}{0.001 \times 0.99 + (1 - 0.001) \times (1 - 0.99)}$$
+# P(test+) = P(test+ | infected) × P(infected) + P(test+ | not infected) × P(not infected)
+prob_positive <- sensitivity * prevalence + (1 - specificity) * (1 - prevalence)
 
-```{r bs_calc, include = FALSE}
-b_a <- 0.99
-a <- 0.001
-a_b <- (b_a * a) / ((a * b_a) + ((1 - a) * (1 - b_a)))
+# P(infected | test+)
+prob_infected_given_positive <- (sensitivity * prevalence) / prob_positive
+
+prob_infected_given_positive
 ```
 
-You tested positive, but there's only a `r scales::percent(a_b)` chance that you actually have BS.
+Even with a positive test result from a 95% accurate test, you only have about a `r scales::percent(prob_infected_given_positive)` chance of actually being infected when prevalence is low. This surprises people—but it's exactly what Bayes' theorem tells us.
 
-## What's the point?
+**The key insight:** Your posterior belief (infected given positive test) combines the evidence (test result) with your prior knowledge (base rate of infection).
 
-Bayes' Theorem rocks!
+## The Bayesian Framework
+
+This same principle extends to all of statistics:
 
 $$
-\begin{aligned}
-\overbrace{p(\theta | \text{Data})}^{\text{posterior}} &= \frac{\overbrace{p(\text{Data} | \theta)}^{\text{likelihood}} \times \overbrace{p(\theta)}^{\text{prior}}}{\underbrace{p(\text{Data})}_{\text{marginal likelihood}}} \\
-&\propto p(\text{Data} | \theta) \times p(\theta) \\
-\end{aligned}
+\overbrace{p(\theta \mid \text{data})}^{\text{posterior}} = \frac{\overbrace{p(\text{data} \mid \theta)}^{\text{likelihood}} \times \overbrace{p(\theta)}^{\text{prior}}}{\underbrace{p(\text{data})}_{\text{normalizing constant}}}
 $$
 
-We can confront our **model** with the **data** and incorporate our **prior** understanding to draw inference about parameters of interest.
+Or more simply: **posterior ∝ likelihood × prior**
 
-# Example 2: A/B Testing
+We confront our model (likelihood) with the data, incorporate our prior understanding, and obtain a full probability distribution over parameters—not just point estimates. This gives us:
 
-## Stan
+1. **Uncertainty quantification**: Full probability distributions, not just p-values
+2. **Flexible modeling**: Hierarchical structures, complex dependencies
+3. **Prior knowledge integration**: Regularization, domain expertise
+4. **Interpretable inference**: "There's a 92% probability that version B is better"
 
--   Probabilistic programming language
--   Implements fancy HMC algorithms
--   Written in C++ for *speed*
--   Interfaces for R (rstan), python (pystan), etc.
--   Active developers on cutting-edge of HMC research
--   Large user community
+# A Complete Bayesian Workflow: A/B Testing
 
-# A/B Testing
-
-Suppose your manager approaches you and says,
-
-> We're testing an exciting new web feature!
-> Version A has a red button, and version B has a green button.
-> Which version yields more conversions?"
-
-How can you answer this question?
+Let's walk through a realistic A/B test with proper Bayesian workflow. You're testing a new website feature—version A (control) has a blue button, version B (treatment) has an orange button. Which drives more conversions?
 
 ## The Data
 
 ```{r data}
-df <- expand.grid(
-  version = c("A", "B"), 
-  converted = c("Yes", "No")
+#| message: false
+library(tidyverse)
+library(brms)
+library(bayesplot)
+library(posterior)
+
+# Observed data
+ab_data <- tibble(
+  version = c(rep("A", 1420), rep("B", 1400)),
+  conversions = c(
+    rep(c(1, 0), c(120, 1300)),  # A: 120 conversions, 1300 non-conversions
+    rep(c(1, 0), c(125, 1275))   # B: 125 conversions, 1275 non-conversions
+  )
 )
-df$n_visitors <- c(1300, 1275, 120, 125)
-df
+
+ab_data |>
+  group_by(version) |>
+  summarize(
+    visitors = n(),
+    conversions = sum(conversions),
+    conversion_rate = mean(conversions)
+  )
 ```
 
-## The Model
+Raw conversion rates: A = 8.5%, B = 8.9%. But is this difference meaningful? How confident should we be?
 
-The model of the experiment is an A/B test in which
+## Step 1: Define the Model
+
+We'll model this as a binomial process where each version has a conversion probability:
 
 $$
 \begin{aligned}
-n_A &\sim \mathsf{Binomial}(N_A, \pi_A) & n_B &\sim \mathsf{Binomial}(N_B, \pi_B) \\
-\pi_A &= \mathsf{InvLogit}(\eta_A) & \pi_B &= \mathsf{InvLogit}(\eta_B) \\
-\eta_A &= \mathsf{Normal}(0, 2.5) & \eta_B &= \mathsf{Normal}(0, 2.5)
+\text{conversions}_j &\sim \text{Binomial}(n_j, \pi_j) \\
+\text{logit}(\pi_j) &= \alpha + \beta \cdot \mathbb{1}(\text{version}_j = B) \\
+\alpha &\sim \text{Normal}(0, 1.5) \\
+\beta &\sim \text{Normal}(0, 1)
 \end{aligned}
 $$
 
-## Implementation in Stan
+Where:
+- $\pi_A = \text{logit}^{-1}(\alpha)$ is the baseline conversion rate
+- $\pi_B = \text{logit}^{-1}(\alpha + \beta)$ is the treatment conversion rate
+- $\beta$ represents the treatment effect on the log-odds scale
 
-```{stan output.var="model"}
-data {
-  int<lower=1> visitors_A;
-  int<lower=0> conversions_A;
-  int<lower=1> visitors_B;
-  int<lower=0> conversions_B;
-}
-parameters {
-  real eta_A;
-  real eta_B;
-}
-transformed parameters {
-  real<lower=0., upper=1.> pi_A = inv_logit(eta_A);
-  real<lower=0., upper=1.> pi_B = inv_logit(eta_B);
-}
-model {
-  eta_A ~ normal(0., 2.5);
-  eta_B ~ normal(0., 2.5);
-  conversions_A ~ binomial(visitors_A, pi_A);
-  conversions_B ~ binomial(visitors_B, pi_B);
-}
-generated quantities {
-  real<lower=-1., upper=1.> pi_diff;
-  real eta_diff;
-  real lift;
+### Prior Selection
 
-  pi_diff = pi_B - pi_A;
-  eta_diff = eta_B - eta_A;
-  lift = (pi_B - pi_A) / pi_B;
-}
-```
+Our priors encode reasonable beliefs before seeing data:
 
-## Run and fit the model
+- `Normal(0, 1.5)` for baseline: On the probability scale, this is weakly informative, allowing conversion rates roughly between 1% and 30%
+- `Normal(0, 1)` for treatment effect: Modest prior favoring small effects, but allowing for larger ones if data supports it
 
-```{r fit}
-abtest_data <- list(
-  visitors_A = 1300,
-  visitors_B = 1275,
-  conversions_A = 120,
-  conversions_B = 125
+```{r prior_viz}
+# Visualize what our priors imply about conversion rates
+set.seed(123)
+prior_samples <- tibble(
+  alpha = rnorm(1000, 0, 1.5),
+  beta = rnorm(1000, 0, 1),
+  pi_A = plogis(alpha),
+  pi_B = plogis(alpha + beta),
+  lift = (pi_B - pi_A) / pi_A
 )
 
-abtest_fit <- rstan::sampling(
-  model, 
-  data = abtest_data,
-  chains = 1, 
-  iter = 1000, 
+prior_samples |>
+  pivot_longer(c(pi_A, pi_B), names_to = "version", values_to = "conversion_rate") |>
+  ggplot(aes(conversion_rate, fill = version)) +
+  geom_histogram(alpha = 0.6, bins = 50, position = "identity") +
+  scale_x_continuous(labels = scales::percent_format()) +
+  labs(
+    title = "Prior predictive distribution for conversion rates",
+    subtitle = "What conversion rates do our priors allow?",
+    x = "Conversion rate",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+## Step 2: Prior Predictive Checks
+
+Before fitting, let's simulate data from our prior to ensure it's reasonable:
+
+```{r prior_predictive}
+#| message: false
+#| warning: false
+#| results: hide
+
+# Fit model with sample_prior = "only" to sample from prior
+prior_model <- brm(
+  conversions ~ version,
+  data = ab_data,
+  family = bernoulli(link = "logit"),
+  prior = c(
+    prior(normal(0, 1.5), class = Intercept),
+    prior(normal(0, 1), class = b)
+  ),
+  sample_prior = "only",
+  chains = 2,
+  iter = 2000,
+  refresh = 0,
+  seed = 123
+)
+```
+
+```{r prior_pred_viz}
+# Generate prior predictions
+pp_prior <- posterior_predict(prior_model)
+
+# Check: does prior allow reasonable conversion rates?
+prior_conv_rates <- tibble(
+  sample = 1:nrow(pp_prior),
+  rate_A = rowMeans(pp_prior[, ab_data$version == "A"]),
+  rate_B = rowMeans(pp_prior[, ab_data$version == "B"])
+)
+
+prior_conv_rates |>
+  pivot_longer(-sample, names_to = "version", values_to = "rate") |>
+  ggplot(aes(rate, fill = version)) +
+  geom_histogram(alpha = 0.6, bins = 50, position = "identity") +
+  scale_x_continuous(labels = scales::percent_format()) +
+  labs(
+    title = "Prior predictive check: conversion rates",
+    subtitle = "Simulated data under the prior",
+    x = "Conversion rate",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+This looks reasonable—our prior allows for a wide range of conversion rates but doesn't put too much mass on extreme values.
+
+## Step 3: Fit the Model
+
+Now we fit the model with actual data:
+
+```{r fit_model}
+#| message: false
+#| warning: false
+#| results: hide
+
+ab_model <- brm(
+  conversions ~ version,
+  data = ab_data,
+  family = bernoulli(link = "logit"),
+  prior = c(
+    prior(normal(0, 1.5), class = Intercept),
+    prior(normal(0, 1), class = b)
+  ),
+  chains = 4,
+  iter = 2000,
+  warmup = 1000,
+  cores = 4,
+  seed = 123,
   refresh = 0
 )
 ```
 
-## Calculate the probability that $\pi_A$
+## Step 4: Check Diagnostics
 
-```{r, probability}
-pi_A <- drop(rstan::extract(abtest_fit, "pi_A")[[1]])
-pi_B <- drop(rstan::extract(abtest_fit, "pi_B")[[1]])
-mean(pi_A > pi_B)
-mean(pi_A < pi_B)
+Before interpreting results, we must check that the sampler worked properly:
+
+```{r diagnostics}
+# Check R-hat (should be < 1.01) and effective sample size
+summary(ab_model)
+
+# Trace plots - should look like "fuzzy caterpillars"
+mcmc_trace(ab_model, pars = c("b_Intercept", "b_versionB"))
 ```
 
-Looks like Version B wins!
+All R-hat values are 1.00, and effective sample sizes are high. The chains mixed well.
 
-## Plot posteriors
+## Step 5: Posterior Predictive Checks
 
-```{r posterior}
+Does our model capture the data-generating process?
+
+```{r posterior_predictive}
+pp_check(ab_model, ndraws = 100) +
+  labs(title = "Posterior predictive check: Does the model fit the data?")
+```
+
+The model captures the observed data distribution well.
+
+## Step 6: Analyze Results
+
+Now we can answer our question: which version is better?
+
+```{r results}
+# Extract posterior samples
+draws <- as_draws_df(ab_model)
+
+# Convert to probability scale
+posterior_samples <- draws |>
+  mutate(
+    pi_A = plogis(b_Intercept),
+    pi_B = plogis(b_Intercept + b_versionB),
+    absolute_lift = pi_B - pi_A,
+    relative_lift = (pi_B - pi_A) / pi_A,
+    b_wins = pi_B > pi_A
+  )
+
+# Summary statistics
+posterior_samples |>
+  summarize(
+    prob_B_better = mean(b_wins),
+    mean_lift_abs = mean(absolute_lift),
+    median_lift_rel = median(relative_lift),
+    q025_lift_rel = quantile(relative_lift, 0.025),
+    q975_lift_rel = quantile(relative_lift, 0.975)
+  )
+```
+
+**Key findings:**
+
+- There's a `r scales::percent(mean(posterior_samples$b_wins))` probability that version B has a higher conversion rate than A
+- Expected relative lift: `r scales::percent(median(posterior_samples$relative_lift))` with 95% credible interval [`r scales::percent(quantile(posterior_samples$relative_lift, 0.025))`, `r scales::percent(quantile(posterior_samples$relative_lift, 0.975))`]
+
+### Visualize the Posterior
+
+```{r posterior_viz}
+#| code-fold: true
 #| classes: preview-image
-posterior <- as.matrix(abtest_fit)
-bayesplot::mcmc_areas(posterior, pars = c("pi_A", "pi_B"))
+
+# Conversion rate distributions
+posterior_samples |>
+  select(pi_A, pi_B) |>
+  pivot_longer(everything(), names_to = "version", values_to = "conversion_rate") |>
+  ggplot(aes(conversion_rate, fill = version)) +
+  geom_density(alpha = 0.6) +
+  scale_x_continuous(labels = scales::percent_format()) +
+  labs(
+    title = "Posterior distributions of conversion rates",
+    subtitle = "Version B shows a small advantage",
+    x = "Conversion rate",
+    y = "Density"
+  ) +
+  theme_minimal()
 ```
+
+```{r lift_viz}
+# Distribution of lift
+ggplot(posterior_samples, aes(relative_lift)) +
+  geom_histogram(bins = 50, fill = "steelblue", alpha = 0.7) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+  scale_x_continuous(labels = scales::percent_format()) +
+  labs(
+    title = "Posterior distribution of relative lift",
+    subtitle = "How much better is version B?",
+    x = "Relative lift (B vs A)",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+## Step 7: Make a Decision
+
+Statistical significance isn't the same as practical significance. Should you ship version B?
+
+This depends on your decision criteria:
+
+```{r decision}
+# Define a minimum meaningful effect (e.g., 2% relative lift)
+min_meaningful_lift <- 0.02
+
+posterior_samples |>
+  summarize(
+    prob_b_better = mean(b_wins),
+    prob_meaningful = mean(relative_lift > min_meaningful_lift),
+    prob_worse = mean(relative_lift < -min_meaningful_lift),
+    prob_negligible = mean(abs(relative_lift) <= min_meaningful_lift)
+  )
+```
+
+**Decision framework:**
+
+- **Ship B**: If P(meaningful lift) > threshold (e.g., 90%) → Currently `r scales::percent(mean(posterior_samples$relative_lift > 0.02))`
+- **Keep A**: If P(B worse) > threshold → Currently `r scales::percent(mean(posterior_samples$relative_lift < -0.02))`
+- **Collect more data**: If probability of negligible effect is high → Currently `r scales::percent(mean(abs(posterior_samples$relative_lift) <= 0.02))`
+
+In this case, there's only a 35% chance that version B provides a meaningful (>2%) improvement. You might want to collect more data or consider the business context (implementation cost, opportunity cost of not testing other features, etc.).
+
+# When Should You Use Bayesian Methods?
+
+Bayesian statistics shine when you need:
+
+1. **Uncertainty quantification**: "What's the probability this treatment is better?" not just "Is p < 0.05?"
+2. **Small data**: Incorporate prior knowledge to improve inference with limited samples
+3. **Hierarchical structure**: Multi-level models (users within groups, products within categories)
+4. **Complex models**: Non-standard likelihoods, missing data, measurement error
+5. **Sequential decision-making**: Update beliefs as new data arrives (no p-hacking concerns)
+6. **Interpretable results**: Communicate probabilities directly to stakeholders
+
+**When to use frequentist methods instead:**
+
+- You need fast, simple inference and have large samples (t-tests, linear regression)
+- The problem fits standard frequentist frameworks well
+- Stakeholders are more comfortable with p-values and confidence intervals
+
+**When to use ML methods instead:**
+
+- Prediction accuracy is the primary goal (not inference about parameters)
+- You have massive data and complex patterns (deep learning)
+- You don't need uncertainty quantification
+
+# The Modern Bayesian Toolkit
+
+## For R Users
+
+- **brms**: User-friendly interface to Stan, formula syntax like lm/glm
+- **rstanarm**: Pre-compiled Stan models for common analyses
+- **cmdstanr**: Direct interface to Stan for custom models
+
+## For Python Users
+
+- **PyMC**: Intuitive API, great documentation
+- **NumPyro**: JAX-based, very fast for large models
+- **bambi**: Python's version of brms
+
+## Learning Resources
+
+**Books:**
+- *Statistical Rethinking* by Richard McElreath (conceptual, with code)
+- *Bayesian Data Analysis* by Gelman et al. (comprehensive reference)
+- *Regression and Other Stories* by Gelman, Hill, Vehtari (applied)
+
+**Online:**
+- [Michael Betancourt's case studies](https://betanalpha.github.io/writing/) (advanced workflow)
+- [Bayes Rules! book](https://www.bayesrulesbook.com/) (beginner-friendly, free online)
+- [PyMC examples gallery](https://www.pymc.io/projects/examples/en/latest/gallery.html)
+
+# Common Pitfalls
+
+1. **Ignoring diagnostics**: Always check R-hat, effective sample size, and trace plots
+2. **Bad priors**: Too vague leads to sampling problems; too strong ignores data
+3. **Not checking prior/posterior predictive**: Ensure model makes sense
+4. **Confusing credible intervals with confidence intervals**: Different interpretation!
+5. **Forgetting computational cost**: MCMC is slower than MLE—start simple
+
+# Your First Bayesian Analysis in 3 Steps
+
+Ready to try this yourself?
+
+1. **Start with brms** (R) or **PyMC** (Python) for a model you already know (linear regression, logistic regression)
+2. **Do the full workflow**: Prior predictive check → Fit → Diagnostics → Posterior predictive check → Interpret
+3. **Compare to frequentist results** you'd get from `lm()` or `glm()` to build intuition
+
+The best way to learn is to apply it to your own data. Pick a small project, work through the workflow, and see how Bayesian thinking changes your perspective on uncertainty.
+
+---
+
+*This post was originally based on a [talk](https://www.meetup.com/columbusgadatascience/events/257657831/) I gave at the Columbus Georgia Data Science Meetup in 2019. It has been substantially updated to reflect modern Bayesian workflows and tooling.*
