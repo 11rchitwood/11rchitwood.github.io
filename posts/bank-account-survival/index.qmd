@@ -1,109 +1,403 @@
 ---
-title: "Bank Account Survival Analysis"
+title: "Credit Risk Modeling: Logistic Regression vs. Survival Analysis"
 date: "2023-09-01"
 ---
 
-Ever wondered how long your savings will last? Your bank wants to know that too.
+Ever wondered how banks decide whether to approve your loan? It all comes down to quantifying credit risk.
 
-# Survival Analysis
+# Introduction to Credit Risk Modeling
 
-In my past life as an ecologist, we learned about survival models, but it turns out they show up in all sorts of domains (economics, engineering, and sociology to name a few). Wikipedia puts it well:
+In banking, credit risk modeling is the practice of estimating the potential for financial loss when lending money. Banks need to answer critical questions: How likely is this borrower to default? If they default, how much money will we lose? How much are they likely to owe when default happens?
 
-> Survival analysis attempts to answer certain questions, such as what is the proportion of a population which will survive past a certain time? Of those that survive, at what rate will they die or fail? Can multiple causes of death or failure be taken into account? How do particular circumstances or characteristics increase or decrease the probability of survival?
+These questions are formalized through three key parameters:
 
-Now that I work in finance, I've learned that Asset & Liability Managers (ALM) at the bank are interested in estimating the average life of various types of bank accounts. A good average life model allows ALM folks to predict future patterns in deposits, a hot topic in this current economic environment.
+- **PD (Probability of Default)**: The likelihood that a borrower will fail to meet their debt obligations
+- **LGD (Loss Given Default)**: The proportion of exposure lost when default occurs (typically 1 - recovery rate)
+- **EAD (Exposure at Default)**: The total amount owed at the time of default
 
-# Average Life of Bank Accounts
+Together, these parameters help banks calculate **Expected Loss** = PD × LGD × EAD, which drives lending decisions, pricing, and regulatory capital requirements.
 
-## Account Balances
+In this post, we'll focus on **PD modeling**, exploring two different approaches: the traditional logistic regression method and an alternative using survival analysis.
 
-Let's start with some fake data.
+# The Traditional Approach: Logistic Regression
+
+## How It Works
+
+The most common approach to PD modeling in the banking industry is logistic regression. The idea is straightforward:
+
+1. Collect historical loan data with borrower characteristics (credit score, income, debt-to-income ratio, etc.)
+2. Label each loan as either "defaulted" (1) or "non-defaulted" (0) based on some observation period
+3. Fit a logistic regression model to predict the probability of default
+
+This approach has been the industry standard for decades. It's interpretable, well-understood by regulators, and produces a probability between 0 and 1 that can be directly used as a PD estimate.
+
+## The Weaknesses
+
+However, logistic regression has several important limitations when applied to credit risk:
+
+**1. Time is Ignored**: Logistic regression treats default as a binary outcome observed at a single point in time. A loan that defaults in month 3 is treated the same as a loan that defaults in month 36. The timing of default is completely lost.
+
+**2. Censored Data is Mishandled**: At any given observation point, many loans are still active (neither defaulted nor paid off). These "censored" observations are typically labeled as "non-defaulted," but this is misleading—we simply haven't observed them long enough. A loan that's been active for 6 months is fundamentally different from one that successfully completed a 60-month term.
+
+**3. Observation Period Dependency**: Results are highly sensitive to the chosen observation window. Should we look at 12-month default rates? 24 months? 36 months? Different windows produce different models with different PD estimates.
+
+**4. Lost Information**: By collapsing time-to-event into a binary outcome, we lose valuable information about default patterns over the life of a loan.
+
+Let's see these issues in action with some simulated data.
+
+# Simulating Loan Data
+
+Let's create a realistic dataset of consumer loans to demonstrate both approaches.
 
 ```{r}
-set.seed(123)
+#| warning: false
+set.seed(42)
 library(tidyverse)
-library(knitr) # for `kable()`
+library(survival)
+library(knitr)
+library(patchwork)
 
-n_accounts <- 500
+# Simulate 1000 loans
+n_loans <- 1000
 
-floor_zero <- function(x) ifelse(x < 0, 0, x)
+# Generate borrower characteristics
+loans <- tibble(
+  loan_id = 1:n_loans,
+  credit_score = rnorm(n_loans, mean = 680, sd = 80),
+  dti_ratio = pmax(0.05, rnorm(n_loans, mean = 0.35, sd = 0.15)),  # debt-to-income
+  loan_amount = exp(rnorm(n_loans, mean = 10, sd = 0.5)),
+  loan_term = 60  # 60-month term loans
+)
 
-balance_by_month <- expand_grid(
-  account_id = as.character(seq_len(n_accounts)), 
-  date = ymd(080101) + months(0:11)
-) |> 
-  mutate(month = month(date, label = TRUE, abbr = FALSE)) |> 
-  group_by(account_id) |> 
+# Simulate time-to-default based on risk factors
+# Lower credit score and higher DTI increase default risk
+loans <- loans |>
   mutate(
-    balance = account_id |> 
-      rnorm(mean = 0, sd = 1000) |> 
-      cumsum() |> 
-      floor_zero()
+    # Create a risk score
+    risk_score = -0.01 * (credit_score - 680) + 5 * (dti_ratio - 0.35),
+    # Baseline hazard increases with time (loans become riskier as they age)
+    # Use Weibull distribution for time-to-default
+    shape = 1.5,  # Hazard increases over time
+    scale = exp(-0.5 - risk_score),
+    # Generate time-to-default
+    time_to_default = rweibull(n_loans, shape = shape, scale = scale),
+    # Generate time-to-payoff (competing risk)
+    time_to_payoff = rweibull(n_loans, shape = 2, scale = 50),
+    # Observed time is minimum of default, payoff, or term end
+    time_observed = pmin(time_to_default, time_to_payoff, loan_term),
+    # Determine event type
+    event_type = case_when(
+      time_to_default < time_to_payoff & time_to_default < loan_term ~ "default",
+      time_to_payoff < time_to_default & time_to_payoff < loan_term ~ "payoff",
+      TRUE ~ "censored"
+    ),
+    # Binary default indicator (1 = default, 0 = no default observed)
+    defaulted = ifelse(event_type == "default", 1, 0)
   )
 
-balance_by_month |> 
-  head() |> 
-  kable()
+# Summary statistics
+loans |>
+  count(event_type) |>
+  mutate(percentage = scales::percent(n / sum(n))) |>
+  kable(caption = "Loan Outcomes")
 ```
 
-So we've got monthly balances for one year from `r n_accounts` accounts. Let's plot the data!
+Our simulated portfolio has loans that either default, get paid off early, or are still ongoing (censored). Let's examine the distribution of time-to-default for those loans that did default.
 
 ```{r}
-ggplot(balance_by_month, aes(x = date, y = balance, fill = account_id)) +
-  geom_line(alpha = 0.2)
+loans |>
+  filter(event_type == "default") |>
+  ggplot(aes(x = time_observed)) +
+  geom_histogram(bins = 30, fill = "darkred", alpha = 0.7) +
+  labs(
+    title = "Distribution of Time-to-Default",
+    subtitle = "For loans that defaulted",
+    x = "Months until Default",
+    y = "Count"
+  ) +
+  theme_minimal()
 ```
 
-We've got some random walks floored at zero. We're assuming that balances can't be negative. It looks like some folks are doing really well but others not so much. How do we translate these balances to survival models.
+We can see that defaults occur throughout the life of the loan, with some concentration in earlier months. This temporal pattern is crucial information that logistic regression will ignore.
 
-## Defining the Event
+# Logistic Regression Approach
 
-Survival analysis is all about examining time-to-event phenomena. Back in ecology land, the event was death, but when does a bank account die? Earlier we floored balances at zero. Some banks charge overdraft fees, so when a customer reaches zero, they're likely to be charged a fee. We'll just assume that reaching zero means that a bank account is done for. First let's calculate the first month that the account hit zero. That's when the "death" event occurs.
+Let's fit a traditional logistic regression model. We'll use a 36-month observation window, meaning we'll look at which loans defaulted within the first 36 months.
 
 ```{r}
-first_zero_month <- balance_by_month |> 
-  filter(balance == 0) |> 
-  summarise(first_zero_month = min(.data$month))
+# Create a 36-month snapshot
+observation_window <- 36
 
-ggplot(first_zero_month, aes(x = first_zero_month)) + 
-  geom_bar()
+loans_lr <- loans |>
+  mutate(
+    # For logistic regression: did the loan default within 36 months?
+    default_36m = ifelse(event_type == "default" & time_observed <= observation_window, 1, 0)
+  )
+
+# Fit logistic regression
+logit_model <- glm(
+  default_36m ~ credit_score + dti_ratio + log(loan_amount),
+  data = loans_lr,
+  family = binomial(link = "logit")
+)
+
+summary(logit_model)
+
+# Calculate predicted probabilities
+loans_lr <- loans_lr |>
+  mutate(pd_logit = predict(logit_model, type = "response"))
+
+# Show distribution of predicted PDs
+ggplot(loans_lr, aes(x = pd_logit)) +
+  geom_histogram(bins = 30, fill = "steelblue", alpha = 0.7) +
+  labs(
+    title = "Distribution of Predicted PDs (Logistic Regression)",
+    subtitle = "36-month observation window",
+    x = "Predicted Probability of Default",
+    y = "Count"
+  ) +
+  theme_minimal()
 ```
 
-It looks like a cascade of death events. Most occur in the first month with fewer and fewer as the year goes on. But we've got a problem! We need to represent this in the data. In this analysis, we don't want bank accounts to suddenly come back alive! We need to define our event clearly.
+The logistic regression model gives us predicted default probabilities. But notice what we've lost:
 
-```{r}
-event_by_month <- balance_by_month |> 
-  left_join(first_zero_month, by = "account_id") |> 
-  mutate(event = if_else(month >= first_zero_month, 1, 0)) |> 
-  mutate(month = as.integer(month)) |> 
-  select(account_id, month, event)
+1. **Censoring bias**: Loans that are still active at 36 months are labeled as "non-defaulted," even though some may default later
+2. **Timing**: A loan that defaulted in month 6 gets the same treatment as one that defaulted in month 35
+3. **Window dependency**: If we used a 24-month or 48-month window, we'd get different coefficients and different PDs
 
-event_by_month |> 
-  head() |> 
-  kable()
-```
+# Survival Analysis Approach
 
-Now our event column stays put once the account balance hits zero.
+Survival analysis directly addresses these weaknesses by modeling time-to-default while properly handling censoring.
 
-## Fitting Our First Survival Model
+## The Kaplan-Meier Estimator
 
-Survival models are built in to R. Ain't that great? Let's fit a model.
+First, let's visualize the survival curve—the probability that a loan survives (doesn't default) past time t.
 
 ```{r}
 #| classes: preview-image
-library(survival)
 
-fit_customer <- survfit(Surv(time = event_by_month$month, event = event_by_month$event) ~ 1)
+# Create survival object (event = 1 for default, 0 for censored/payoff)
+surv_obj <- Surv(
+  time = loans$time_observed,
+  event = loans$defaulted
+)
 
-plot(fit_customer, xlab = "Time", ylab = "Survival Probability", main = "Survival Curve for Customers")
+# Fit Kaplan-Meier survival curve
+km_fit <- survfit(surv_obj ~ 1, data = loans)
+
+# Plot survival curve
+plot(km_fit,
+     xlab = "Months",
+     ylab = "Survival Probability (1 - Cumulative Default Rate)",
+     main = "Kaplan-Meier Survival Curve",
+     conf.int = TRUE)
+abline(v = 36, col = "red", lty = 2)
+text(36, 0.95, "36-month mark", pos = 4, col = "red")
 ```
 
-Base R plots are just the best sometimes. Now let's calculate the average life of an account using the Kaplan-Meier estimator.
+This curve shows the proportion of loans that remain non-defaulted over time, properly accounting for censoring. The confidence intervals reflect our uncertainty.
+
+## Cox Proportional Hazards Model
+
+While Kaplan-Meier is useful for visualization, we need a regression model that incorporates borrower characteristics. The Cox proportional hazards model is the survival analysis equivalent of logistic regression.
+
+Instead of modeling the probability of default, Cox regression models the **hazard rate**—the instantaneous risk of default at time t, given survival up to time t.
 
 ```{r}
-survival_prob <- fit_customer$surv
-times <- fit_customer$time
-delta_time <- c(times[1], diff(times))
-account_avg_life <- sum(survival_prob * delta_time)
+# Fit Cox proportional hazards model
+cox_model <- coxph(
+  Surv(time_observed, defaulted) ~ credit_score + dti_ratio + log(loan_amount),
+  data = loans
+)
+
+summary(cox_model)
 ```
 
-There you have it! On average an account lasts `r round(account_avg_life)` months.
+The coefficients represent hazard ratios. For example, a negative coefficient for credit_score means that higher credit scores reduce the hazard (risk) of default at any given time.
+
+## Extracting PD Estimates from Survival Models
+
+To compare with logistic regression, we can extract predicted probabilities of default at specific time points (like 36 months) from the survival model.
+
+```{r}
+# Get predicted survival probabilities for each loan
+surv_prob <- survfit(cox_model, newdata = loans)
+
+# Extract 36-month survival probability
+# (This requires a bit of wrangling)
+time_points <- 36
+
+# Function to extract survival probability at specific time
+extract_surv_prob <- function(fit, time) {
+  # Get survival probabilities for each individual
+  surv_matrix <- summary(fit, times = time)$surv
+  return(surv_matrix)
+}
+
+# Calculate 36-month PD from survival model
+surv_36m <- summary(surv_prob, times = 36)$surv
+loans_surv <- loans |>
+  mutate(
+    survival_prob_36m = surv_36m,
+    pd_survival = 1 - survival_prob_36m  # PD = 1 - Survival probability
+  )
+
+# Distribution of predicted PDs
+ggplot(loans_surv, aes(x = pd_survival)) +
+  geom_histogram(bins = 30, fill = "darkgreen", alpha = 0.7) +
+  labs(
+    title = "Distribution of Predicted PDs (Survival Analysis)",
+    subtitle = "36-month probability from Cox model",
+    x = "Predicted Probability of Default",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+# Comparing the Two Approaches
+
+Now let's directly compare predictions from both methods.
+
+```{r}
+# Combine predictions
+comparison <- loans_lr |>
+  select(loan_id, credit_score, dti_ratio, loan_amount,
+         time_observed, event_type, defaulted, pd_logit) |>
+  left_join(
+    loans_surv |> select(loan_id, pd_survival),
+    by = "loan_id"
+  )
+
+# Scatter plot of predictions
+p1 <- ggplot(comparison, aes(x = pd_logit, y = pd_survival, color = event_type)) +
+  geom_point(alpha = 0.6) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  labs(
+    title = "Logistic Regression vs. Survival Analysis",
+    subtitle = "36-month PD estimates",
+    x = "PD (Logistic Regression)",
+    y = "PD (Survival Analysis)",
+    color = "Actual Outcome"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+# Difference in predictions
+p2 <- ggplot(comparison, aes(x = pd_logit - pd_survival)) +
+  geom_histogram(bins = 30, fill = "purple", alpha = 0.7) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    title = "Difference in PD Estimates",
+    subtitle = "Logistic - Survival",
+    x = "Difference",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+p1 / p2
+```
+
+## Key Insights from the Comparison
+
+Let's examine which approach performs better by looking at actual outcomes.
+
+```{r}
+# Calculate performance metrics
+# For loans that actually defaulted within 36 months
+defaulted_36m <- comparison |>
+  filter(event_type == "default" & time_observed <= 36)
+
+# For loans that didn't default and had full 36-month observation
+non_defaulted_36m <- comparison |>
+  filter((event_type == "payoff" & time_observed <= 36) |
+         (event_type == "censored" & time_observed >= 36))
+
+# Average PD for actual defaulters
+metrics <- tibble(
+  Segment = c("Defaulted by 36m", "Defaulted by 36m",
+              "Non-defaulted at 36m", "Non-defaulted at 36m"),
+  Method = rep(c("Logistic Regression", "Survival Analysis"), 2),
+  Mean_PD = c(
+    mean(defaulted_36m$pd_logit),
+    mean(defaulted_36m$pd_survival),
+    mean(non_defaulted_36m$pd_logit),
+    mean(non_defaulted_36m$pd_survival)
+  )
+)
+
+metrics |>
+  kable(digits = 3, caption = "Average PD by Actual Outcome")
+```
+
+## What About Different Time Horizons?
+
+One major advantage of survival analysis is that we can easily extract PD estimates for **any** time horizon without refitting the model.
+
+```{r}
+# Calculate PDs at multiple time points
+time_horizons <- c(12, 24, 36, 48, 60)
+
+# For survival model, we can extract PD at any time point
+pd_by_time <- map_dfr(time_horizons, function(t) {
+  surv_t <- summary(surv_prob, times = t)$surv
+  tibble(
+    time_horizon = t,
+    mean_pd_survival = mean(1 - surv_t)
+  )
+})
+
+# For logistic regression, we'd need to refit for each window
+# (We'll just show the 36-month estimate we already have)
+pd_by_time <- pd_by_time |>
+  left_join(
+    tibble(
+      time_horizon = 36,
+      mean_pd_logit = mean(loans_lr$pd_logit)
+    ),
+    by = "time_horizon"
+  )
+
+pd_by_time |>
+  kable(digits = 4, caption = "PD Estimates by Time Horizon")
+
+# Plot PD term structure from survival model
+ggplot(pd_by_time, aes(x = time_horizon, y = mean_pd_survival)) +
+  geom_line(linewidth = 1, color = "darkgreen") +
+  geom_point(size = 3, color = "darkgreen") +
+  geom_point(aes(y = mean_pd_logit), color = "steelblue", size = 3,
+             na.rm = TRUE) +
+  labs(
+    title = "PD Term Structure",
+    subtitle = "Green: Survival Analysis (all points) | Blue: Logistic Regression (36m only)",
+    x = "Time Horizon (months)",
+    y = "Mean Probability of Default"
+  ) +
+  theme_minimal()
+```
+
+# Conclusions
+
+## When to Use Logistic Regression
+
+Despite its limitations, logistic regression remains valuable:
+
+- **Simplicity**: Easy to implement and explain to stakeholders
+- **Industry standard**: Widely accepted by regulators
+- **Short-term PD**: If you only need PD at a single, fixed time point
+- **Regulatory requirements**: Some frameworks explicitly require logistic regression
+
+## When to Use Survival Analysis
+
+Survival analysis shines when:
+
+- **Time matters**: You care about when defaults occur, not just if they occur
+- **Censoring is prevalent**: Many loans are still active in your dataset
+- **Multiple time horizons**: You need PD estimates at various points (1-year, 2-year, 3-year, etc.)
+- **Richer insights**: You want to understand how default risk evolves over the loan lifecycle
+- **Better information use**: You want to extract maximum value from your historical data
+
+## The Bottom Line
+
+Survival analysis provides a more principled approach to credit risk modeling by directly addressing the time-to-event nature of defaults and properly handling censored observations. While logistic regression remains entrenched in industry practice, survival methods offer substantial advantages for institutions willing to adopt them.
+
+Modern credit risk management increasingly recognizes that **when** a default occurs is just as important as **whether** it occurs. Survival analysis gives us the tools to model both.
