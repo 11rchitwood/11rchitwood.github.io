@@ -4,6 +4,22 @@ aliases:
   - /teaching/biology.html
 ---
 
+Welcome to Biology! I'm Mr. Chitwood, and I'll be your instructor for this year-long required science course. We'll explore life at many scales, from the cells that make up living things to the ecosystems they inhabit. In hands-on labs, you'll learn to work safely, ask scientific questions, and use evidence to explain what you find.
+
 ## Course materials
 
-Course materials will be posted here.
+Check CougarNet for assignments and Google Classroom for course content.
+
+- [2026–27 Biology syllabus](https://docs.google.com/document/d/1klF33pLeHRTy1uvVPi36EWSS1dUYZyMearHCOcMTVJY/edit)
+
+### Topics
+
+- Biology basics
+- Cells
+- Energy
+- Genetics
+- Heredity
+- Evolution
+- Ecology
+- Classification
+- Survey of kingdoms
