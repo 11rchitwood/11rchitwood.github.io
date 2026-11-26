@@ -1,0 +1,7 @@
+---
+title: "Teaching"
+---
+
+- [Biology](biology.qmd)
+- [Ornithology](ornithology.qmd)
+- [Marine Biology](marine-biology.qmd)

@@ -1,0 +1,16 @@
+meta:
+  name: The Chitwood Lab
+
+color:
+  palette:
+    brookstone-blue: "#003087" # Web equivalent of Pantone 287 C
+    white: "#FFFFFF"
+  primary: brookstone-blue
+  background: white
+  light: white
+
+typography:
+  base:
+    family: system-ui
+  headings:
+    family: system-ui

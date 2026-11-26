@@ -1,7 +1,6 @@
 ---
-title: "Ryan Chitwood"
+title: "The Chitwood Lab"
+subtitle: "Brookstone School"
 ---
 
-This is a Quarto website.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+The Chitwood Lab brings together teaching, research, and outreach at Brookstone School. Through our research in ecology and conservation, we provide students with opportunities to participate in authentic scientific discovery, develop as independent researchers, and share their work with the broader community.
