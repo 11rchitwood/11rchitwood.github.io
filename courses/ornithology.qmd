@@ -1,0 +1,9 @@
+---
+title: "Ornithology"
+aliases:
+  - /teaching/ornithology.html
+---
+
+## Course materials
+
+Course materials will be posted here.

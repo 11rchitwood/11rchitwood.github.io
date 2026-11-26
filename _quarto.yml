@@ -10,7 +10,7 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - teaching/index.qmd
+      - courses/index.qmd
       - research/index.qmd
       - outreach/index.qmd
       - people/index.qmd

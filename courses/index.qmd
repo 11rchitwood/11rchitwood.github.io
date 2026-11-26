@@ -1,5 +1,7 @@
 ---
-title: "Teaching"
+title: "Courses"
+aliases:
+  - /teaching/index.html
 ---
 
 - [Biology](biology.qmd)
