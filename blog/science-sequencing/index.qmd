@@ -1,0 +1,221 @@
+---
+title: "Which high school science course should come first?"
+subtitle: "Mapping the conceptual dependencies in Georgia’s biology, chemistry, and physics standards"
+date: 2026-11-27
+draft: true
+bibliography: references.bib
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    html-math-method: mathml
+execute:
+  echo: false
+  message: false
+---
+
+```{r}
+#| label: setup
+source("R/analysis.R")
+source("R/figures.R")
+result <- analyse()
+scores <- result$scores
+pair <- function(from, to) {
+  filter(result$course_pairs, source == from, target == to)
+}
+pct <- function(x) ifelse(is.na(x), "—", scales::percent(x, accuracy = 1))
+display_number <- function(x) format(x, nsmall = 1, digits = 3, trim = TRUE)
+best <- scores[1, ]
+traditional <- filter(scores, sequence == "Biology → Chemistry → Physics")
+chem_bio <- pair("Chemistry", "Biology")
+phys_chem <- pair("Physics", "Chemistry")
+chem_phys <- pair("Chemistry", "Physics")
+reviewed <- sum(result$edges$review_status == "accepted")
+```
+
+## Introduction
+
+A Biology I class can ask students to explain why some substances cross a cell membrane more easily than others. If biology comes first, the teacher may introduce polarity, charge, and concentration gradients in that unit. If chemistry comes first, students may already have a model they can apply. The same question runs in the other direction. A physics teacher explaining radioactive decay may draw on a model of the atom that students encounter in chemistry.
+
+The conventional U.S. sequence is biology → chemistry → physics. Physics First reverses it, with early physics intended to broaden access to the subject and provide a foundation for later science [@aapt; @larkin]. Chemistry First puts chemistry before biology while leaving two possible positions for physics. **Which sequence best satisfies the conceptual dependencies among the learning objectives Georgia actually specifies?**
+
+My starting hypothesis was that biology draws more heavily on chemistry than chemistry draws on physics. A sequence can support that hypothesis and still put physics first, depending on how much physics helps chemistry and how much chemistry helps physics. I evaluated all six orders against the same set of proposed links.
+
+## Methods
+
+### Georgia’s standards
+
+I used the adopted *Science – Georgia Standards of Excellence* framework in GaDOE’s SuitCASE catalog, checked November 27, 2026. The scope is Biology I (26.01200), Chemistry I (40.05100), and Physics (40.08100). The catalog lists June 9, 2016 as the approval date, while a GaDOE press release announces approval on March 31, 2016. Both place first implementation in the 2017–18 school year, which GaDOE’s 2021 FAQ also confirms. The framework’s digital record was last modified on May 29, 2025. Its timestamp identifies the source snapshot separately from the implementation date [@gadoe-case; @gadoe-release; @gadoe-faq].
+
+The dataset preserves each lettered element’s official CASE wording, parent standard, source URL, and item timestamp. The network has `r nrow(result$standards)` nodes, one per lettered element. There are `r sum(result$standards$discipline == "Biology")` in biology, `r sum(result$standards$discipline == "Chemistry")` in chemistry, and `r sum(result$standards$discipline == "Physics")` in physics. A compound element stays intact even when an edge applies to one part of it. The sensitivity analysis tests a coarser unit.
+
+### What counts as a dependency?
+
+I used an AI-assisted, content-based screen of the three courses in both directions and within each course. For each candidate, the question was whether a concept explicitly taught by the source objective makes it easier to do what the target objective asks. Every retained edge has a direction, a rationale, a confidence label, and a review status. Candidate selection used comparison of the course texts and overlapping concepts. It did not independently adjudicate every possible objective pair. The current sheet includes `r reviewed` human-accepted edges.
+
+| Type | Decision rule | Weight |
+|---|---|---:|
+| Required | The specified performance needs the concept taught by the source objective. | 3 |
+| Helpful | The concept materially improves an explanation, model, or investigation at the specified level. | 2 |
+| Enriching | The concept supports a deeper explanation or a specific optional application beyond the expected performance. | 1 |
+| Reinforcing | The target revisits or applies earlier knowledge that can be introduced at the point of use without impairing the specified performance. | 0 |
+
+For example, model-based reasoning about bond polarity (SC2.d) helps explain membrane transport (SB1.d). Physics treatments of spectral composition (SP4.e) can enrich a photosynthesis investigation (SB1.e) if it compares colors, an experimental choice the biology standard leaves open. A shared term such as *energy* does not establish an edge by itself. I looked for an identifiable use of the concept in the receiving course, such as drawing a boundary around a system to account for what enters and leaves. Such connections are among the purposes of crosscutting concepts in the national science framework [@nrc].
+
+### Comparing orders
+
+For each of the six permutations, a positive-weight cross-course edge is satisfied if the source course comes before its target. Within-course links inform the network analysis and have no bearing on this comparison. Reinforcing links carry zero points and are excluded from the weighted and unweighted denominators.
+
+$$
+S(\pi) = \frac{\sum_{e \in E} w_e\,\mathbf{1}\{\pi(p_e) < \pi(d_e)\}}
+{\sum_{e \in E} w_e}.
+$$
+
+Here $E$ is the eligible set, $w_e$ the edge weight, $p_e$ the prerequisite course, $d_e$ the dependent course, and $\pi$ each course’s position. I also count the fraction of edges satisfied with equal weights, the fraction of required edges satisfied when that set is nonempty, and the missed edge count and weight for each sequence and receiving course. For the network, I count edges and weight by direction and divide by the number of receiving objectives or the number of possible directed objective pairs. Within-course pair counts exclude self-pairs.
+
+## Results
+
+### Which course draws on which?
+
+The first pass records `r nrow(result$edges)` relationships. Of the cross-course links with positive weight, `r sum(result$cross$dependency_type == "helpful")` are helpful and `r sum(result$cross$dependency_type == "enriching")` are enriching. Chemistry → Biology contributes `r chem_bio$eligible` links worth `r chem_bio$weight` points, compared with `r phys_chem$eligible` links worth `r phys_chem$weight` points for Physics → Chemistry. Within courses, the inventory records `r sum(!result$edges$cross_course & result$edges$dependency_type == 'required')` required links. That cross-course asymmetry persists after accounting for course size. The respective weighted totals are `r display_number(chem_bio$weight_per_100_pairs)` and `r display_number(phys_chem$weight_per_100_pairs)` per 100 possible directed pairs. The Physics → Chemistry direction also outweighs Chemistry → Physics, which contributes `r chem_phys$weight` points. With biology last, that smaller physics–chemistry balance determines which of the two remaining orders leads.
+
+```{r}
+#| label: fig-directions
+#| fig-cap: "Cross-course dependencies by direction. Cells show positive-weight edge count / total weight."
+#| fig-alt: "Chemistry to Biology has 12 edges and weight 22. Physics to Chemistry has 9 and 14. Chemistry to Physics has 4 and 8. Physics to Biology has 6 and 7. Neither direction out of Biology has positive weight."
+#| fig-width: 6.8
+#| fig-height: 3.8
+plot_directions(result$course_pairs)
+```
+
+```{r}
+#| label: tbl-network
+#| tbl-cap: "Network counts and normalization for each directed course pair. Recorded counts include reinforcing links."
+result$course_pairs |>
+  transmute(From = source, To = target, Recorded = relationships, Positive = eligible,
+            Weight = weight, `Links per target objective` = round(per_target, 2),
+            `Links per 100 pairs` = round(per_100_pairs, 2)) |>
+  knitr::kable()
+```
+
+Molecular interactions account for the largest cluster from chemistry into biology. Other lines of connection include atom accounting through photosynthesis and respiration, pH as an environmental limit, nuclear processes across chemistry and physics, and electric interactions as a basis for understanding ionic bonds. Biology supplies examples such as enzymes for chemistry’s catalysis objective. I coded those links as reinforcement. I found no defensible Biology → Physics link at the specified level in this pass.
+
+The most prerequisite-heavy node is membrane transport (SB1.d). It draws on cell structures and macromolecules in biology as well as polarity and solution concepts in chemistry. Bonding models (SC2.d) have the broadest reach. Several downstream objectives draw on the bonding concept, including chemical formulas, the dissolving process, and biological transport. These are candidate bottlenecks worth examining in a classroom, where a teacher can see which ideas students actually struggle to apply.
+
+```{r}
+#| label: tbl-degree
+#| tbl-cap: "Objectives with the most incoming and outgoing positive-weight links. Ties in edge count are retained."
+bind_rows(
+  result$network$nodes |> slice_max(prerequisites, n = 3) |>
+    transmute(Role = "Receives", Objective = objective, Links = prerequisites, Weight = incoming_weight),
+  result$network$nodes |> slice_max(supports, n = 3) |>
+    transmute(Role = "Supports", Objective = objective, Links = supports, Weight = outgoing_weight)
+) |>
+  knitr::kable()
+```
+
+The positive-weight objective network has `r nrow(result$network$reciprocals)` reciprocal pairs and `r nrow(result$network$components)` strongly connected groups with multiple objectives. Both groups are within courses. One connects phylogenetic trees with evidence for common descent (SB4.b and SB6.c). The other connects Newton’s laws with free-body diagrams (SP2.a and SP2.b). These suggest places to teach objectives together or return to one after introducing the other. When reinforcement is included, two connected groups span chemistry and physics. One connects fusion with element formation and the other connects emission spectra with light and lenses. The aggregated chemistry–physics directions create a course-level trade-off even though the positive-weight objective network has no cross-course cycle.
+
+### How do the six sequences compare?
+
+**`r best$sequence` has the highest baseline score** at `r pct(best$weighted)` (`r best$satisfied_weight` of `r best$eligible_weight` points). Biology → Chemistry → Physics scores `r pct(traditional$weighted)`. No cross-course edge in this pass met the required threshold, so a required-only fraction is undefined for every sequence. At this level of judgment, the difference between orders concerns the availability of useful prior knowledge.
+
+```{r}
+#| label: fig-scores
+#| fig-cap: "Weighted satisfaction of all six course sequences using the baseline 3/2/1/0 weights."
+#| fig-alt: "Physics, Chemistry, Biology ranks first at 84 percent; Chemistry, Physics, Biology follows at 73 percent. The remaining orders score 59, 41, 27 and 16 percent."
+#| fig-width: 8.3
+#| fig-height: 3.9
+plot_scores(scores)
+```
+
+```{r}
+#| label: tbl-scores
+#| tbl-cap: "Satisfaction and missed opportunities for each sequence. B = Biology, C = Chemistry, P = Physics. A dash indicates an empty denominator."
+scores |>
+  transmute(Sequence = short_sequence(sequence), Satisfied = paste0(satisfied_edges, "/", eligible),
+            Unweighted = pct(unweighted), Weighted = pct(weighted), Required = pct(required_only),
+            Missed = unsatisfied, `Missed weight` = unsatisfied_weight) |>
+  knitr::kable()
+```
+
+Physics First leaves four helpful links unsatisfied, all in physics. They concern charge transfer, models of nuclear change, comparisons of radioactive decay, and half-life modeling. Chemistry → Physics → Biology trades those for nine missed links in chemistry worth 14 points, including interpreting spectra and explaining bonding through electric interactions. Both orders keep every modeled incoming link into biology in sequence. In the conventional order, the model assigns biology 18 missed links worth 29 points.
+
+```{r}
+#| label: fig-missed
+#| fig-cap: "Unsatisfied dependencies by receiving course and relationship type. B = Biology, C = Chemistry, P = Physics."
+#| fig-alt: "In Physics–Chemistry–Biology, only Physics has missed links, four helpful edges. In Chemistry–Physics–Biology, Chemistry has five helpful and four enriching links. Both biology-first sequences leave 18 links unsatisfied in Biology."
+#| fig-width: 8.3
+#| fig-height: 5.2
+plot_missed(result$missed, scores)
+```
+
+::: {.callout-note collapse="true" title="Missed links and weights by receiving course"}
+
+```{r}
+#| label: tbl-missed-by-course
+#| tbl-cap: "Each cell shows the number of missed edges and their total weight."
+result$missed |>
+  summarise(count = sum(missed), points = sum(weight), .by = c(sequence, target)) |>
+  mutate(cell = paste(count, points, sep = " / "),
+         target = factor(target, levels = courses)) |>
+  arrange(match(sequence, scores$sequence), target) |>
+  transmute(Sequence = short_sequence(sequence), target, cell) |>
+  pivot_wider(names_from = target, values_from = cell) |>
+  knitr::kable()
+```
+
+:::
+
+
+### How sensitive is the result?
+
+Physics First stayed ahead when all links were counted equally, low-confidence links were set aside, enriching links were omitted, and weights were divided by the numbers of possible pairs. It also led after collapsing multiple edges to the strongest link per parent-standard pair or per concept and direction, and when the analysis omitted each of the 12 cross-course concepts in turn. Raising the weight on required edges leaves the result unchanged because the cross-course set has none. A run using only human-accepted edges also has an empty denominator at this stage.
+
+Giving each receiving course the same total weight changes the result. Physics → Chemistry → Biology and Chemistry → Physics → Biology tie at two-thirds. Both retain all incoming links into biology. Each also retains the incoming links into one of the other two courses and loses the incoming links into the other. This exposes a choice in what the score rewards. Pooled weights give courses with more or stronger recorded links more influence. Equal receiving-course weights give each course the same influence.
+
+```{r}
+#| label: fig-sensitivity
+#| fig-cap: "Weighted satisfaction under each deterministic scenario. Outlined cells indicate first place, including ties. A dash means there were no eligible edges. B = Biology, C = Chemistry, P = Physics."
+#| fig-alt: "Physics–Chemistry–Biology leads most scenarios and ties Chemistry–Physics–Biology when the receiving courses have equal weight. The required-only and accepted-only rows have no eligible edges."
+#| fig-width: 9.1
+#| fig-height: 5.6
+plot_sensitivity(result$sensitivity, scores)
+```
+
+I also ran 2,000 hypothetical recodings with a fixed seed. Each provisional positive edge independently had a 10%, 30%, or 60% chance of moving one strength category, depending on its confidence label. Upward and downward shifts were equally likely, with categories capped at required and an enriching edge dropping out if moved down to zero. The baseline leader finished alone in first place in `r format(result$simulation$outright_wins[match(best$sequence, result$simulation$sequence)], big.mark = ",")` draws and shared first in `r result$simulation$joint_wins[match(best$sequence, result$simulation$sequence)]`. These are outcomes of a stress test under chosen recoding rules. The draws do not estimate how often reviewers will disagree, and they leave out missing links and correlated changes in judgments. The equal-course tie is an example of a change the recoding exercise cannot capture.
+
+## Discussion
+
+The narrowest finding is that a chemistry background appears useful for the biology Georgia describes. In a Biology I class, the practical question is which chemistry to make available before students meet a dependent topic. A membrane-transport unit can teach polarity and concentration gradients just in time. A cell-energetics unit can give students an explicit matter-accounting task. Those bridges are available to a biology-first school as well as to schools that can reorder their courses.
+
+A school weighing an early physics course has to look beyond conceptual connections. Georgia’s physics objectives include vectors, components, and mathematical models, so the timing of algebra matters. Larkin’s case studies document how difficult it was to coordinate ninth-grade physics and algebra and how biology enrollments shifted during implementation [@larkin]. Developmental appropriateness and engagement also depend on the actual lessons and supports. A school could compare whether ninth-graders can make sense of local motion experiments, chemical phenomena, and living systems with the mathematical tools they have.
+
+Laboratory safety, teachers qualified to staff each grade level, equipment and scheduling, and access to advanced or elective courses can change what a school can offer. Prior middle school science also matters. Students may already bring useful models of particles, forces, or energy, and some students take a separate Physical Science course outside the three-course comparison. A transition plan would need to protect access to advanced classes while checking what knowledge students already bring.
+
+Sadler and Tai’s observational study connected high school mathematics and same-subject preparation with performance in introductory college science. Its results illustrate why the strength of a content link and the effect of a scheduling decision call for different evidence [@sadler-tai].
+
+## Limitations
+
+- Standards describe intended expectations. Enacted curricula differ in scope, pacing, examples, and depth.
+- The edge inventory reflects one AI-assisted coding pass and subjective choices about thresholds, weights, and granularity. Missing edges might reflect gaps in the screen, particularly in sparsely coded directions.
+- The standards cannot fully describe prior knowledge. The model treats taking a course as an opportunity to encounter a concept. It does not measure whether students mastered or retained it.
+- Teachers can introduce a missing prerequisite just in time. The model treats courses as completed blocks and does not represent overlapping schedules or coordinated units.
+- A higher score indicates greater coherence under the modeled dependencies. It cannot establish better student learning outcomes or the causal effectiveness of one sequence.
+
+## Conclusion
+
+Physics → Chemistry → Biology best satisfies the current edge inventory under pooled baseline weights. Chemistry → Physics → Biology ties when each receiving course carries equal weight. Both put biology after chemistry, consistent with the preliminary asymmetry in the edge inventory. For my own teaching, the next step is to record when a student’s explanation or investigation actually depends on a concept from another course, what I taught to bridge that gap, and whether the receiving task required it. A second reviewer can then check the proposed edge against the standards. Classroom evidence can help refine the curriculum map, while a study of learning outcomes would need its own design and evidence.
+
+## Data and figures
+
+[Official standards extract](data/standards.csv) · [Editable dependency inventory](data/dependencies.csv)
+
+Vector figures are available for [course directions](figures/directions.svg), [sequence scores](figures/scores.svg), [missed links](figures/missed.svg), and [sensitivity scenarios](figures/sensitivity.svg).
+
+The standards wording is reproduced from the Georgia Department of Education’s SuitCASE framework under its [CC BY-NC-SA terms](https://case.georgiastandards.org/uri/47df204e-0584-4a22-b8d7-2ff0b686d989). The CSV changes the format and adds provenance columns.
+
+## References
+
+::: {#refs}
+:::

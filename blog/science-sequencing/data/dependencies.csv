@@ -1,0 +1,123 @@
+prerequisite_id,dependent_id,dependency_type,weight,rationale,confidence,review_status,concept
+SC2.d,SB1.c,helpful,2,Bond polarity helps students explain how parts of a macromolecule interact with their surroundings and with other molecules.,high,provisional,Molecular interactions
+SC2.a,SB1.c,helpful,2,Distinguishing forces between molecules from bonds within them helps explain protein folding and interactions in water.,high,provisional,Molecular interactions
+SC2.d,SB1.d,helpful,2,Polarity and charge help explain why different substances cross a lipid membrane by different routes.,high,provisional,Molecular interactions
+SC6.a,SB1.d,helpful,2,Knowing how dissolved particles behave helps interpret solute gradients in an osmosis investigation.,medium,provisional,Solutions and gradients
+SC6.c,SB1.d,helpful,2,Quantifying the amount of solute per volume helps students compare treatments in an osmosis investigation. Full molarity calculations are optional.,medium,provisional,Solutions and gradients
+SC2.a,SB2.a,helpful,2,Distinguishing intermolecular attractions from covalent bonds helps explain why DNA strands separate while their backbones remain intact.,medium,provisional,Molecular interactions
+SC2.g,SB1.e,helpful,2,Net bond-energy change helps explain how reactions transfer energy and why breaking a bond itself does not release energy.,high,provisional,Reaction energy
+SC3.a,SB1.e,helpful,2,Conserving each kind of atom while representing a reaction helps students track where matter goes during photosynthesis and respiration.,high,provisional,Matter accounting
+SC3.a,SB5.b,helpful,2,Atom accounting through photosynthesis and respiration helps distinguish matter cycling from energy flow in an ecosystem model.,high,provisional,Matter accounting
+SC6.f,SB5.e,helpful,2,Interpreting the pH scale helps students explain what a pH change means in one of the listed environmental-limit examples.,high,provisional,Acids and bases
+SC5.b,SB5.e,enriching,1,Heating and phase changes can deepen an explanation of freezing as a temperature limit. A survival prediction can use measured tolerance without that mechanism.,low,provisional,Thermal effects
+SC2.d,SB4.c,enriching,1,Polarity can deepen a comparison that uses lipid envelopes and cell membranes. The standards allow comparisons based on other characteristics.,low,provisional,Molecular interactions
+SB1.c,SC4.c,reinforcing,0,Enzymes give students a biological catalyst to revisit as an everyday example. The chemistry explanation can use an entirely different catalyst.,medium,provisional,Catalysis
+SB1.e,SC3.b,reinforcing,0,Gas exchange in a familiar cellular process can provide a context for revisiting reaction indicators. The chemistry investigation does not depend on that context.,low,provisional,Reaction evidence
+SP4.e,SC1.e,helpful,2,Experience comparing spectral composition helps students interpret line spectra and distinguish emission signatures of elements.,high,provisional,Light and spectra
+SP4.a,SC1.e,enriching,1,A model of electromagnetic energy transfer adds context to emitted light. The chemistry objective can be explained using energy levels and observed line patterns.,medium,provisional,Light and spectra
+SP6.a,SC1.c,helpful,2,Knowing what fusion changes in a nucleus helps students explain how a new element can form through fusion.,high,provisional,Nuclear processes
+SP5.a,SC2.d,helpful,2,Attraction between opposite charges helps explain ionic bonding and the electrostatic basis of the bonding continuum.,high,provisional,Electric interactions
+SP5.a,SC2.a,helpful,2,Electric attraction helps students connect observations of bulk properties with interactions at molecular scales.,medium,provisional,Electric interactions
+SP5.c,SC2.g,enriching,1,Electric potential energy can deepen an explanation of energy changes during bond rearrangement. A net bond-energy model can meet the chemistry target.,medium,provisional,Reaction energy
+SP3.a,SC5.a,helpful,2,Distinguishing open and closed systems helps define a calorimetry system and clarify which energy transfers an investigation tracks.,medium,provisional,System boundaries
+SP3.b,SC5.a,enriching,1,Mechanical energy accounting gives students a conservation example to extend to thermal processes. Heat calculations can be taught without the work-kinetic energy theorem.,medium,provisional,System boundaries
+SP3.b,SC4.b,enriching,1,A kinetic energy model can deepen discussion of collision energy. Object-scale calculations and mechanical work are beyond the chemistry objective.,low,provisional,Collision energy
+SC1.a,SP5.b,helpful,2,A model with mobile electrons helps explain charge transfer by contact and charge redistribution during induction.,medium,provisional,Electric interactions
+SC1.a,SP6.a,helpful,2,Identifying protons and neutrons in the nucleus gives students components to track in models of nuclear change.,high,provisional,Nuclear processes
+SC1.b,SP6.b,helpful,2,"Knowing that proton count determines the element helps explain differences in the consequences of alpha, beta, and gamma decay.",high,provisional,Nuclear processes
+SC1.d,SP6.c,helpful,2,Understanding isotopes helps students specify which population is decaying in a half-life model. Average atomic mass calculations are unnecessary.,medium,provisional,Nuclear processes
+SC1.c,SP6.a,reinforcing,0,The fusion portion of the physics comparison revisits a process used in chemistry to explain formation of heavier elements.,high,provisional,Nuclear processes
+SC1.e,SP4.e,reinforcing,0,Line spectra provide a familiar example of spectral composition. Optics and light investigations need no explanation of atomic transitions.,medium,provisional,Light and spectra
+SP4.a,SB1.e,enriching,1,Modeling light as energy transfer can deepen an explanation of the energy input to photosynthesis. Wave calculations are outside the biology objective.,medium,provisional,Light and spectra
+SP4.e,SB1.e,enriching,1,Spectral composition can enrich a photosynthesis investigation that compares light colors. The biology standard does not require that experimental design.,low,provisional,Light and spectra
+SP4.d,SB2.b,enriching,1,Distinguishing electromagnetic radiation types can add context for radiation as an environmental source of mutation. The biology standard does not require wave physics.,low,provisional,Radiation and variation
+SP6.b,SB2.b,enriching,1,Knowledge of emissions from radioactive decay can help distinguish radiation sources in an optional context for the variation argument.,low,provisional,Radiation and variation
+SP3.a,SB5.b,helpful,2,Separating inputs and outputs across a system boundary helps students distinguish incoming energy from the matter tracked through an ecosystem.,medium,provisional,System boundaries
+SP3.b,SB5.b,enriching,1,Energy conservation can clarify why energy transferred out of an ecosystem’s tracked pathways has not disappeared. Mechanical-energy calculations are beyond the standard.,medium,provisional,System boundaries
+SB1.a,SB1.d,helpful,2,A model of cell membranes and homeostasis helps interpret the effects of transport in an investigation.,high,provisional,Cells and homeostasis
+SB1.c,SB1.d,helpful,2,Lipid and protein structure helps explain membrane permeability and the role of channels and transporters.,high,provisional,Molecular interactions
+SB1.c,SB2.a,helpful,2,Building blocks and structural properties of nucleic acids and proteins help students explain the steps of gene expression.,high,provisional,Genetic information
+SB1.b,SB2.b,required,3,Students need a model of meiosis to explain why crossing over or nondisjunction yields new genetic combinations in the specified part of the argument.,high,provisional,Inheritance and variation
+SB2.a,SB2.b,required,3,Students need to understand what is copied during replication to explain how copying errors produce the listed variants.,high,provisional,Genetic information
+SB1.b,SB3.a,required,3,Chromosome separation during meiosis supplies the mechanism used to connect Mendel’s laws to variability.,high,provisional,Inheritance and variation
+SB3.a,SB3.b,helpful,2,Segregation and independent assortment help justify the assumptions of basic inheritance models.,high,provisional,Inheritance and variation
+SB1.b,SB3.c,helpful,2,Models of meiosis and cell division help compare how sexual and asexual reproduction differ in continuity and variation.,high,provisional,Inheritance and variation
+SB2.b,SB3.a,helpful,2,Examples of new genetic combinations help students distinguish assortment from other processes contributing to variability.,medium,provisional,Inheritance and variation
+SB1.a,SB4.a,helpful,2,Recognizing the organization of eukaryotic cells helps students identify the structures that an endosymbiosis argument must explain.,high,provisional,Cells and homeostasis
+SB1.a,SB4.c,helpful,2,Cell organization and homeostasis provide explicit criteria for comparison with viruses.,high,provisional,Cells and homeostasis
+SB4.a,SB4.b,helpful,2,Shared characters and recognizable clades give students data and groups to use in a phylogenetic model.,high,provisional,Phylogeny and evolution
+SB4.b,SB6.c,helpful,2,Reading a tree helps connect multiple kinds of evidence with the claim of common ancestry.,high,provisional,Phylogeny and evolution
+SB6.c,SB4.b,helpful,2,Understanding why shared inherited traits support common ancestry helps students select and interpret evidence for phylogenetic trees.,medium,provisional,Phylogeny and evolution
+SB2.a,SB6.c,helpful,2,Connecting genes to proteins helps students understand why related species may share protein sequence patterns.,high,provisional,Genetic information
+SB1.e,SB5.b,required,3,"The ecosystem model explicitly includes photosynthesis and respiration, so students need to know their contrasting roles in moving matter and energy.",high,provisional,Matter accounting
+SB5.a,SB5.c,helpful,2,Evidence about population and biodiversity changes helps students predict responses to disturbance.,high,provisional,Ecosystem response
+SB5.b,SB5.c,helpful,2,A food-web model can help students explain why a disturbance propagates through an ecosystem.,medium,provisional,Ecosystem response
+SB5.c,SB5.d,helpful,2,Predicting effects of a disturbance helps identify which consequence an intervention should address.,high,provisional,Ecosystem response
+SB5.e,SB5.c,helpful,2,An organism’s environmental limits help connect an environmental change to potential shifts in species abundance.,medium,provisional,Ecosystem response
+SB2.b,SB6.d,required,3,Selection and drift require heritable variation for students to model changes in the frequencies of variants.,high,provisional,Inheritance and variation
+SB6.d,SB6.e,required,3,A population-level model of selection supplies the mechanism for explaining how resistance becomes more common.,high,provisional,Phylogeny and evolution
+SB6.d,SB6.b,helpful,2,Changes in populations provide a mechanism for interpreting patterns of divergence associated with speciation.,medium,provisional,Phylogeny and evolution
+SC1.a,SC1.b,required,3,Distinguishing the three subatomic particles is necessary to argue which one defines elemental identity.,high,provisional,Atomic structure
+SC1.b,SC1.c,required,3,Students need the connection between proton number and elemental identity to explain how fusion forms another element.,high,provisional,Nuclear processes
+SC1.b,SC1.d,helpful,2,Knowing why atoms can be the same element despite different neutron counts helps explain weighted atomic mass.,high,provisional,Atomic structure
+SC1.e,SC1.g,helpful,2,Evidence for discrete electron energy states provides context for models of electron configurations.,medium,provisional,Atomic structure
+SC1.g,SC1.f,helpful,2,Electron configuration helps students explain why valence patterns recur down the periodic table.,high,provisional,Atomic structure
+SC1.f,SC2.d,helpful,2,Electronegativity trends help predict how electrons are shared in a bond.,high,provisional,Molecular interactions
+SC1.g,SC2.d,helpful,2,Electron configurations and ion formation help students reason about sharing or transfer of valence electrons.,high,provisional,Molecular interactions
+SC2.d,SC2.f,required,3,Students need bonding and ion-charge models to predict which chemical formulas are consistent with those models.,high,provisional,Molecular interactions
+SC2.f,SC2.e,helpful,2,Recognizing compound formulas supports inference of naming conventions.,high,provisional,Molecular interactions
+SC2.d,SC2.a,helpful,2,Recognizing bond types and polarity helps relate observed properties to competing explanations based on forces.,high,provisional,Molecular interactions
+SC2.a,SC2.b,required,3,Students need a link between measurable properties and forces to justify a proposed identification.,high,provisional,Molecular interactions
+SC2.d,SC2.c,helpful,2,A bond model helps connect molecular structure to function in suitable designed materials.,medium,provisional,Structure and function
+SC1.g,SC3.a,required,3,"The explanation portion explicitly uses outer electron states, which students need to represent to justify a predicted outcome.",high,provisional,Reaction evidence
+SC2.f,SC3.a,helpful,2,Writing correct formulas helps students distinguish changing an equation’s coefficient from changing a substance.,high,provisional,Matter accounting
+SC3.a,SC3.d,required,3,A balanced equation provides the mole ratios needed to solve reaction stoichiometry problems.,high,provisional,Matter accounting
+SC3.c,SC3.d,required,3,Converting between amount of substance and mass is needed for the specified mass-to-moles and mass-to-mass problems.,high,provisional,Matter accounting
+SC3.d,SC3.e,helpful,2,Using reaction ratios helps identify which reactant is consumed first. A simple investigation can establish this concept without formal computation.,high,provisional,Matter accounting
+SC3.b,SC4.a,helpful,2,Observables such as gas evolution give students ways to track changes in reaction progress.,medium,provisional,Reaction evidence
+SC4.b,SC4.c,helpful,2,Activation energy helps explain how an alternative pathway changes a reaction rate.,high,provisional,Catalysis
+SC4.b,SC4.d,helpful,2,A collision model helps distinguish rate changes from changes in the equilibrium composition.,medium,provisional,Collision energy
+SC5.c,SC4.a,helpful,2,A pressure-volume-temperature model helps anticipate changes to gas-phase collision conditions in one kind of reaction investigation.,medium,provisional,Gas behavior
+SC2.a,SC5.b,required,3,Distinguishing intermolecular attractions from bonds helps explain what the heating-curve plateaus represent alongside the energy input.,high,provisional,Thermal effects
+SC2.g,SC5.a,helpful,2,Net bond-energy models help interpret the sign of a measured heat transfer for chemical reactions.,high,provisional,Reaction energy
+SC2.d,SC6.a,helpful,2,Charge and polarity help explain why ions separate or why a molecular solute remains intact as it dissolves.,high,provisional,Solutions and gradients
+SC6.a,SC6.b,helpful,2,A model of dissolving helps distinguish dissolving rate from how much solute dissolves at equilibrium.,high,provisional,Solutions and gradients
+SC3.c,SC6.c,required,3,Mass-to-mole conversion is needed when molarity is obtained from solute mass and solution volume.,high,provisional,Solutions and gradients
+SC6.c,SC6.d,required,3,Calculating molarity is needed to communicate amounts for preparing a solution at a specified concentration.,high,provisional,Solutions and gradients
+SC6.a,SC6.e,helpful,2,Knowing whether solute particles dissociate helps explain differences in their effect on phase transitions.,medium,provisional,Solutions and gradients
+SC5.b,SC6.e,helpful,2,Reading phase-change behavior for a pure substance provides a baseline for explaining shifts in transition temperatures.,medium,provisional,Thermal effects
+SC6.a,SC6.f,helpful,2,Dissociation gives students a particle-level meaning for percent dissociation and hydronium concentration.,high,provisional,Acids and bases
+SC6.g,SC6.h,helpful,2,Acid-base models help explain why the observed neutralization occurs.,high,provisional,Acids and bases
+SC6.f,SC6.h,helpful,2,Reading pH changes helps students interpret the progress of a neutralization investigation.,high,provisional,Acids and bases
+SP1.c,SP1.a,required,3,The one-dimensional objective distinguishes speed from velocity and uses signs to represent direction.,high,provisional,Motion and forces
+SP1.a,SP1.b,helpful,2,"Recognizing position, velocity, and acceleration helps attach physical meaning to features of motion graphs.",high,provisional,Motion and forces
+SP1.b,SP1.a,reinforcing,0,Graph interpretation provides another representation for measurements and calculations already made in the motion investigation.,medium,provisional,Motion and forces
+SP1.c,SP1.d,required,3,Vector quantities and direction are necessary to resolve and add components of motion.,high,provisional,Motion and forces
+SP1.a,SP1.d,required,3,Independent coordinate motions are analyzed using the one-dimensional relationships.,high,provisional,Motion and forces
+SP1.c,SP2.b,helpful,2,The direction and relative magnitude of each force matter in a free-body diagram.,high,provisional,Motion and forces
+SP2.b,SP2.a,helpful,2,Free-body diagrams help distinguish individual forces from the net force used to explain acceleration.,high,provisional,Motion and forces
+SP2.a,SP2.b,helpful,2,Knowing how net force relates to acceleration helps distinguish equilibrium from nonequilibrium representations.,medium,provisional,Motion and forces
+SP2.c,SP2.a,helpful,2,Estimating forces and resolving components helps calculate acceleration with several forces acting together.,high,provisional,Motion and forces
+SP2.a,SP2.d,required,3,Newton’s laws link the inward force component to the acceleration required for circular motion.,high,provisional,Motion and forces
+SP1.d,SP2.d,helpful,2,A vector description helps students recognize that velocity can change direction at constant speed.,medium,provisional,Motion and forces
+SP2.e,SP2.c,helpful,2,A gravity model helps students reason about the gravitational contribution in the specified force calculations.,medium,provisional,Motion and forces
+SP2.c,SP3.b,helpful,2,Resolving a force along the displacement helps determine its work.,high,provisional,Energy and momentum
+SP3.a,SP3.c,required,3,"An energy conservation investigation explicitly uses a closed system, so students must identify its boundary.",high,provisional,System boundaries
+SP3.b,SP3.c,helpful,2,Energy accounting gives students a basis for calculating rates of energy transfer.,high,provisional,Energy and momentum
+SP2.a,SP3.d,required,3,The momentum objective explicitly connects action-reaction pairs to impulse.,high,provisional,Energy and momentum
+SP1.a,SP3.d,helpful,2,Signed velocities help calculate one-dimensional momentum before and after a collision.,high,provisional,Energy and momentum
+SP3.b,SP3.d,helpful,2,Comparing kinetic energy before and after a collision helps distinguish elastic and inelastic collisions.,medium,provisional,Energy and momentum
+SP4.a,SP4.b,helpful,2,A wave model provides wavelength and helps students explain interference and diffraction patterns.,high,provisional,Wave behavior
+SP4.a,SP4.c,helpful,2,A mechanical wave model helps students explain sound propagation and characterize pitch.,high,provisional,Wave behavior
+SP4.a,SP4.d,helpful,2,A wave model provides quantities and relationships students can investigate for electromagnetic waves.,high,provisional,Light and spectra
+SP4.d,SP4.e,helpful,2,Electromagnetic wave properties provide a basis for investigating visible light as part of that spectrum.,high,provisional,Light and spectra
+SP4.e,SP4.f,helpful,2,Refraction and ray diagrams help interpret observations of light passing through lenses.,medium,provisional,Light and spectra
+SP4.f,SP4.e,reinforcing,0,Lens investigations revisit the behavior used in the thin-lens calculations and optical diagrams.,high,provisional,Light and spectra
+SP4.b,SP4.g,helpful,2,A diffraction model helps students predict how pattern geometry changes with wavelength or slit spacing.,high,provisional,Wave behavior
+SP2.e,SP5.a,required,3,The specified comparison needs the gravitational force-distance relationship alongside the electric one.,high,provisional,Electric interactions
+SP5.a,SP5.b,helpful,2,Attraction and repulsion between charges help explain observed redistribution during induction.,medium,provisional,Electric interactions
+SP5.a,SP5.c,helpful,2,A model of electric forces helps explain how changing separation changes electric potential energy.,high,provisional,Electric interactions
+SP5.c,SP5.d,helpful,2,Electric potential energy per charge explains the meaning of a voltage difference in a circuit.,medium,provisional,Electric interactions
+SP5.d,SP5.e,helpful,2,Understanding and measuring current helps students relate it to observed changes in magnetic field.,medium,provisional,Electric interactions
+SP6.a,SP6.b,helpful,2,A model of nuclear changes gives students a basis for identifying and comparing types of decay.,high,provisional,Nuclear processes
+SP6.b,SP6.c,helpful,2,Understanding that decay removes nuclei from the parent population clarifies what the half-life model tracks.,medium,provisional,Nuclear processes
